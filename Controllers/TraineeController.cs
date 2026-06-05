@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrainineeAPI.Models;
+using TrainineeAPI.DTOs;
 
 namespace TrainineeAPI.Controllers;
 
@@ -17,21 +18,30 @@ public class TraineeController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
-    public ActionResult<TraineeDto> GetAllTrainee()
+    [NonAction]
+    public TraineeDto ConvertToTraineeDTOResponse(Trainee data)
     {
-        var traineeDto = Trainees.Select(t => new TraineeDto
-            {
-                FirstName = t.FirstName,
-                LastName = t.LastName,
-                Email = t.Email,
-                Status = t.Status,
-                TechStack = t.TechStack,
-                CreatedDate = t.CreatedDate,
-                UpdatedDate = t.UpdatedDate,
-            }
-        );
-        return Ok(traineeDto);
+        TraineeDto converted = new TraineeDto
+        {
+            FirstName = data.FirstName,
+            LastName = data.LastName,
+            Email = data.Email,
+            Status = data.Status,
+            TechStack = data.TechStack,
+            CreatedDate = data.CreatedDate,
+            UpdatedDate = data.UpdatedDate,
+        };
+        return converted;
+    }
+
+    [HttpGet]
+    public ActionResult<IEnumerable<TraineeDto>> GetAllTrainee()
+    {
+        var traineeDtos = Trainees
+            .Select(t => ConvertToTraineeDTOResponse(t))
+            .ToList();
+
+        return Ok(traineeDtos);
     }
 
     [HttpGet("{id}")]
@@ -44,45 +54,47 @@ public class TraineeController : ControllerBase
             return NotFound();
         }
 
-        TraineeDto traineeDto = new TraineeDto{
-            FirstName = traineeById.FirstName,
-            LastName = traineeById.LastName,
-            Email = traineeById.Email,
-            Status = traineeById.Status,
-            TechStack = traineeById.TechStack,
-            CreatedDate = traineeById.CreatedDate,
-            UpdatedDate = traineeById.UpdatedDate,
-        };
+        TraineeDto traineeDto = ConvertToTraineeDTOResponse(traineeById);
 
         return Ok(traineeDto);
     }
 
     [HttpPost]
-    public TraineeDTO CreateTrainee(Trainee trainee)
+    public ActionResult<TraineeDto> CreateTrainee(CreateTraineeDto trainee)
     {
-        trainee.Id = Trainees.Count == 0 ? 1 : Trainees.Max(t => t.Id) + 1;
-        Trainees.Add(trainee);
-        return trainee;
+        var id = Trainees.Count == 0 ? 1 : Trainees.Max(t => t.Id) + 1;
+
+        var traineeDto = new TraineeDto
+        {
+            FirstName = trainee.FirstName,  
+            LastName = trainee.LastName,
+            Email = trainee.Email,
+            Status = trainee.Status,
+            TechStack = trainee.TechStack,
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
+        };
+
+        Trainee newTrainee = new Trainee
+        {   
+            Id = id,
+            FirstName = trainee.FirstName,  
+            LastName = trainee.LastName,
+            Email = trainee.Email,
+            Status = trainee.Status,
+            TechStack = trainee.TechStack,
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
+        };
+
+        Trainees.Add(newTrainee);
+
+        return Ok(traineeDto);
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateTrainee(int id, Trainee updatedDetails)
+    public ActionResult<TraineeDto> UpdateTrainee(int id, UpdateTraineeDto updatedDetails)
     {
-        // var traineeById = Trainees.FirstOrDefault(t => t.Id == id);
-
-        // if (traineeById == null)
-        // {
-        //     return NotFound();
-        // }
-
-        // traineeById.Email = updatedDetails.Email;
-        // traineeById.TechStack = updatedDetails.TechStack;
-        // traineeById.FirstName = updatedDetails.FirstName;
-        // traineeById.LastName = updatedDetails.LastName;
-        // traineeById.Status = updatedDetails.Status;
-
-        // return Ok(traineeById);
-
         var traineeIndex = Trainees.FindIndex(t => t.Id == id);
 
         if (traineeIndex == -1)
@@ -90,9 +102,57 @@ public class TraineeController : ControllerBase
             return NotFound();
         }
 
-        updatedDetails.Id = id;
-        Trainees[traineeIndex] = updatedDetails;
-        return Ok(updatedDetails);
+        Trainee oldata = Trainees[traineeIndex];
+
+        Trainee updatedTrainee = new Trainee
+        {
+            Id = id,
+            FirstName = updatedDetails.FirstName,  
+            LastName = updatedDetails.LastName,
+            Email = updatedDetails.Email,
+            Status = updatedDetails.Status,
+            TechStack = updatedDetails.TechStack,
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
+            CreatedDate = oldata.CreatedDate
+        };
+
+        Trainees[traineeIndex] = updatedTrainee;
+
+        var response = new TraineeDto
+        {
+            FirstName = updatedTrainee.FirstName,
+            LastName = updatedTrainee.LastName,
+            Email = updatedTrainee.Email,
+            Status = updatedTrainee.Status,
+            TechStack = updatedTrainee.TechStack,
+            CreatedDate = updatedTrainee.CreatedDate,
+            UpdatedDate = updatedTrainee.UpdatedDate
+        };
+
+        return Ok(response);
+    }
+
+
+    [HttpPatch("{id}")]
+    public ActionResult<TraineeDto> UpdateTraineeUsingPatch(int id, UpdateTraineeDto updatedDetails)
+    {
+        var traineeIndex = Trainees.FindIndex(t => t.Id == id);
+
+        if (traineeIndex == -1)
+        {
+            return NotFound();
+        }
+
+        Trainee olddata = Trainees[traineeIndex];
+
+        olddata.Id = id;
+        olddata.FirstName = updatedDetails.FirstName;
+        olddata.LastName = updatedDetails.LastName;
+        olddata.Status = updatedDetails.Status;
+        olddata.TechStack = updatedDetails.TechStack;
+        olddata.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
+
+        return Ok();
     }
 
     [HttpDelete("{id}")]
