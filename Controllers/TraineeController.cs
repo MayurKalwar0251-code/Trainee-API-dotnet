@@ -18,13 +18,24 @@ public class TraineeController : ControllerBase
     }
 
     [HttpGet]
-    public List<Trainee> GetAllTrainee()
+    public ActionResult<TraineeDto> GetAllTrainee()
     {
-        return Trainees;
+        var traineeDto = Trainees.Select(t => new TraineeDto
+            {
+                FirstName = t.FirstName,
+                LastName = t.LastName,
+                Email = t.Email,
+                Status = t.Status,
+                TechStack = t.TechStack,
+                CreatedDate = t.CreatedDate,
+                UpdatedDate = t.UpdatedDate,
+            }
+        );
+        return Ok(traineeDto);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetTraineeById(int id)
+    public ActionResult<TraineeDto> GetTraineeById(int id)
     {
         var traineeById = Trainees.FirstOrDefault(t => t.Id == id);
 
@@ -33,11 +44,21 @@ public class TraineeController : ControllerBase
             return NotFound();
         }
 
-        return Ok(traineeById);
+        TraineeDto traineeDto = new TraineeDto{
+            FirstName = traineeById.FirstName,
+            LastName = traineeById.LastName,
+            Email = traineeById.Email,
+            Status = traineeById.Status,
+            TechStack = traineeById.TechStack,
+            CreatedDate = traineeById.CreatedDate,
+            UpdatedDate = traineeById.UpdatedDate,
+        };
+
+        return Ok(traineeDto);
     }
 
     [HttpPost]
-    public Trainee CreateTrainee(Trainee trainee)
+    public TraineeDTO CreateTrainee(Trainee trainee)
     {
         trainee.Id = Trainees.Count == 0 ? 1 : Trainees.Max(t => t.Id) + 1;
         Trainees.Add(trainee);
@@ -69,7 +90,7 @@ public class TraineeController : ControllerBase
             return NotFound();
         }
 
-        updatedDetails.Id = traineeIndex;
+        updatedDetails.Id = id;
         Trainees[traineeIndex] = updatedDetails;
         return Ok(updatedDetails);
     }
