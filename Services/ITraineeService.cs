@@ -11,5 +11,7 @@ public interface ITraineeService
     Task<TraineeDto?> Update(int id, UpdateTraineeDto dto);
 
     Task<bool> Delete(int id);
+
+    Task<List<TraineeDto>> FilterBySearch(string search); 
     
 }

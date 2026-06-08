@@ -132,4 +132,17 @@ public class TraineeService : ITraineeService
 
         return response;
     }
+
+    public async Task<List<TraineeDto>> FilterBySearch(string search)
+    {
+        var filterResult = await _traineeContext.Trainees.Where(item => item.FirstName.Contains(search) 
+                                                                    || item.LastName.Contains(search) 
+                                                                    || item.Email.Contains(search) 
+                                                                    || item.TechStack.Contains(search))
+                                                                    .ToListAsync();
+
+        var traineeDtos = filterResult.Select(item => ConvertToTraineeDTOResponse(item)).ToList();
+
+        return traineeDtos;
+    }
 }

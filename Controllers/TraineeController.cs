@@ -5,28 +5,32 @@ using TrainineeAPI.DTOs;
 namespace TrainineeAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("/api/[controller]")]
 public class TraineeController : ControllerBase
 {
 
-    private static List<Trainee> Trainees {get; set;} = new List<Trainee> {};
-    private readonly TraineeContext _context;
-
     private readonly ILogger<TraineeController> _logger;
     private readonly ITraineeService _traineeService;
-    public TraineeController(ILogger<TraineeController> logger,ITraineeService traineeService,TraineeContext traineeContext)
+    public TraineeController(ILogger<TraineeController> logger,ITraineeService traineeService)
     {
         _logger = logger;
         _traineeService = traineeService;
-        _context = traineeContext;
     }
 
-    [HttpGet]
+    [HttpGet("/all")]
     public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee()
     {
         var traineeDtos = await _traineeService.GetAll();
 
         return Ok(traineeDtos);
+    }
+
+    [HttpGet("")]
+    public async Task<ActionResult<IEnumerable<TraineeDto>>> FilterSearchTrainee(string search)
+    {
+        var filterResult = await _traineeService.FilterBySearch(search);
+
+        return Ok(filterResult);
     }
 
     [HttpGet("{id}")]
