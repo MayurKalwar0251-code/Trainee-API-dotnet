@@ -1,11 +1,15 @@
+using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 
 public class TraineeService : ITraineeService
 {
-    private static List<Trainee> Trainees { get; set; } = new List<Trainee>
+    private readonly TraineeContext _traineeContext;
+
+    public TraineeService(TraineeContext traineeContext)
     {
-    };
+        _traineeContext = traineeContext;
+    }
 
     public TraineeDto ConvertToTraineeDTOResponse(Trainee data)
     {
@@ -22,9 +26,11 @@ public class TraineeService : ITraineeService
         return converted;
     }
 
-    public List<TraineeDto> GetAll()
+    public async Task<List<TraineeDto>> GetAll()
     {
-        var traineeDtos = Trainees
+        var trainees = await _traineeContext.Trainees.ToListAsync();
+
+        var traineeDtos = trainees
             .Select(t => ConvertToTraineeDTOResponse(t))
             .ToList();
 
@@ -33,7 +39,7 @@ public class TraineeService : ITraineeService
 
     public TraineeDto? GetById(int id)
     {
-        var traineeById = Trainees.FirstOrDefault(t => t.Id == id);
+        var traineeById = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
         if (traineeById == null)
         {
@@ -47,7 +53,7 @@ public class TraineeService : ITraineeService
 
     public TraineeDto Create(CreateTraineeDto trainee)
     {
-        var id = Trainees.Count == 0 ? 1 : Trainees.Max(t => t.Id) + 1;
+        var id = _traineeContext.Trainees.Count() == 0 ? 1 : _traineeContext.Trainees.Max(t => t.Id) + 1;
 
         var traineeDto = new TraineeDto
         {
@@ -72,83 +78,57 @@ public class TraineeService : ITraineeService
             UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
         };
 
-        Trainees.Add(newTrainee);
+        _traineeContext.Trainees.Add(newTrainee);
+
+        _traineeContext.SaveChangesAsync();
 
         return traineeDto;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> Delete(int id)
     {
-        var trainee = Trainees.FirstOrDefault(t => t.Id == id);
+        var trainee = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
         if (trainee == null)
         {
             return false;
         }
 
-        Trainees.Remove(trainee);
+        _traineeContext.Trainees.Remove(trainee);
+
+        await _traineeContext.SaveChangesAsync();
 
         return true;
     }
 
-    public TraineeDto? Update(int id, UpdateTraineeDto updatedDetails)
+    public async Task<TraineeDto?> Update(int id, UpdateTraineeDto updatedDetails)
     {
-        var traineeIndex = Trainees.FindIndex(t => t.Id == id);
+        var trainee = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
-        if (traineeIndex == -1)
+        if (trainee == null)
         {
             return null;
         }
 
-        Trainee oldata = Trainees[traineeIndex];
+        trainee.FirstName = updatedDetails.FirstName;
+        trainee.LastName = updatedDetails.LastName;
+        trainee.Email = updatedDetails.Email;
+        trainee.Status = updatedDetails.Status;
+        trainee.TechStack = updatedDetails.TechStack;
+        trainee.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
-        Trainee updatedTrainee = new Trainee
-        {
-            Id = id,
-            FirstName = updatedDetails.FirstName,  
-            LastName = updatedDetails.LastName,
-            Email = updatedDetails.Email,
-            Status = updatedDetails.Status,
-            TechStack = updatedDetails.TechStack,
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-            CreatedDate = oldata.CreatedDate
-        };
-
-        Trainees[traineeIndex] = updatedTrainee;
+        await _traineeContext.SaveChangesAsync();
 
         var response = new TraineeDto
         {
-            FirstName = updatedTrainee.FirstName,
-            LastName = updatedTrainee.LastName,
-            Email = updatedTrainee.Email,
-            Status = updatedTrainee.Status,
-            TechStack = updatedTrainee.TechStack,
-            CreatedDate = updatedTrainee.CreatedDate,
-            UpdatedDate = updatedTrainee.UpdatedDate
+            FirstName = trainee.FirstName,
+            LastName = trainee.LastName,
+            Email = trainee.Email,
+            Status = trainee.Status,
+            TechStack = trainee.TechStack,
+            CreatedDate = trainee.CreatedDate,
+            UpdatedDate = trainee.UpdatedDate
         };
-
-        return response;
-    }
-
-    public TraineeDto? UpdateUsingPatch(int id, UpdateTraineeDto updatedDetails)
-    {
-        var traineeIndex = Trainees.FindIndex(t => t.Id == id);
-
-        if (traineeIndex == -1)
-        {
-            return null;
-        }
-
-        Trainee olddata = Trainees[traineeIndex];
-
-        olddata.Id = id;
-        olddata.FirstName = updatedDetails.FirstName;
-        olddata.LastName = updatedDetails.LastName;
-        olddata.Status = updatedDetails.Status;
-        olddata.TechStack = updatedDetails.TechStack;
-        olddata.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
-
-        TraineeDto response = ConvertToTraineeDTOResponse(olddata);
 
         return response;
     }

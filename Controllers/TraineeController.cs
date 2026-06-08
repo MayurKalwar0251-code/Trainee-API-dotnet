@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrainineeAPI.Models;
 using TrainineeAPI.DTOs;
-using YamlDotNet.Core.Tokens;
 
 namespace TrainineeAPI.Controllers;
 
@@ -11,19 +10,21 @@ public class TraineeController : ControllerBase
 {
 
     private static List<Trainee> Trainees {get; set;} = new List<Trainee> {};
+    private readonly TraineeContext _context;
 
     private readonly ILogger<TraineeController> _logger;
     private readonly ITraineeService _traineeService;
-    public TraineeController(ILogger<TraineeController> logger,ITraineeService traineeService)
+    public TraineeController(ILogger<TraineeController> logger,ITraineeService traineeService,TraineeContext traineeContext)
     {
         _logger = logger;
         _traineeService = traineeService;
+        _context = traineeContext;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<TraineeDto>> GetAllTrainee()
+    public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee()
     {
-        var traineeDtos = _traineeService.GetAll();
+        var traineeDtos = await _traineeService.GetAll();
 
         return Ok(traineeDtos);
     }
@@ -49,23 +50,9 @@ public class TraineeController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public ActionResult<TraineeDto> UpdateTrainee(int id, UpdateTraineeDto updatedDetails)
+    public async Task<ActionResult<TraineeDto>> UpdateTrainee(int id, UpdateTraineeDto updatedDetails)
     {
-        var updateTraine = _traineeService.Update(id,updatedDetails);
-
-        if (updateTraine == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(updateTraine);
-    }
-
-
-    [HttpPatch("{id}")]
-    public ActionResult<TraineeDto> UpdateTraineeUsingPatch(int id, UpdateTraineeDto updatedDetails)
-    {
-        var updateTraine = _traineeService.UpdateUsingPatch(id,updatedDetails);
+        var updateTraine = await _traineeService.Update(id,updatedDetails);
 
         if (updateTraine == null)
         {
@@ -76,9 +63,9 @@ public class TraineeController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteTrainee(int id)
+    public async Task<IActionResult> DeleteTrainee(int id)
     {
-        var deleteStatus = _traineeService.Delete(id);
+        var deleteStatus = await _traineeService.Delete(id);
 
         if (!deleteStatus)
         {
