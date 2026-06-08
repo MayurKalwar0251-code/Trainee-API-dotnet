@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using TrainineeAPI.Models;
 using TrainineeAPI.DTOs;
 
 namespace TrainineeAPI.Controllers;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("[controller]")]
 public class TraineeController : ControllerBase
 {
 
@@ -17,20 +16,20 @@ public class TraineeController : ControllerBase
         _traineeService = traineeService;
     }
 
-    [HttpGet("/all")]
-    public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee()
-    {
-        var traineeDtos = await _traineeService.GetAll();
-
-        return Ok(traineeDtos);
-    }
-
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<TraineeDto>>> FilterSearchTrainee(string search)
+    public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee([FromQuery] FilterTraineeDto filter)
     {
-        var filterResult = await _traineeService.FilterBySearch(search);
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var filterResult = await _traineeService.FilterBySearch(filter.Search);
+            return Ok(filterResult);
+        }
+        else
+        {
+            var traineeDtos = await _traineeService.GetAll();
 
-        return Ok(filterResult);
+            return Ok(traineeDtos);
+        }
     }
 
     [HttpGet("{id}")]
