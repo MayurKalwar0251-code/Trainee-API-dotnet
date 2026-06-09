@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrainineeAPI.DTOs;
+using YamlDotNet.Core.Tokens;
 
 namespace TrainineeAPI.Controllers;
 
@@ -19,67 +20,105 @@ public class TraineeController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee([FromQuery] FilterTraineeDto filter)
     {
-        if (!string.IsNullOrWhiteSpace(filter.Search))
+        try
         {
-            var filterResult = await _traineeService.FilterBySearch(filter.Search);
-            return Ok(filterResult);
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+            {
+                var filterResult = await _traineeService.FilterBySearch(filter.Search);
+                return Ok(filterResult);
+            }
+            else
+            {
+                var traineeDtos = await _traineeService.GetAll();
+                return Ok(traineeDtos);
+            }
         }
-        else
+        catch (System.Exception)
         {
-            var traineeDtos = await _traineeService.GetAll();
-
-            return Ok(traineeDtos);
+            Console.WriteLine("Internal Server Error Occured");
+            return Problem("Internal Server Error Occured");
         }
     }
 
     [HttpGet("{id}")]
     public ActionResult<TraineeDto> GetTraineeById(int id)
     {
-
-        var traineeById = _traineeService.GetById(id);
-
-        if (traineeById == null)
+        try
         {
-            return NotFound();
-        }
+            var traineeById = _traineeService.GetById(id);
 
-        return Ok(traineeById);
+            if (traineeById == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(traineeById);
+        }
+        catch (System.Exception)
+        {
+            Console.WriteLine("Internal Server Error Occured");
+            return Problem("Internal Server Error Occured");
+        }
     }
 
     [HttpPost]
     public ActionResult<TraineeDto> CreateTrainee(CreateTraineeDto trainee)
     {
-        return _traineeService.Create(trainee);
+        try
+        {
+            return _traineeService.Create(trainee);
+        }
+        catch (System.Exception)
+        {
+            Console.WriteLine("Internal Server Error Occured");
+            return Problem("Internal Server Error Occured");
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<TraineeDto>> UpdateTrainee(int id, UpdateTraineeDto updatedDetails)
     {
-        var updateTraine = await _traineeService.Update(id,updatedDetails);
-
-        if (updateTraine == null)
+        try
         {
-            return NotFound();
-        }
+            var updateTraine = await _traineeService.Update(id,updatedDetails);
 
-        return Ok(updateTraine);
+            if (updateTraine == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updateTraine);
+        }
+        catch (System.Exception)
+        {
+            Console.WriteLine("Internal Server Error Occured");
+            return Problem("Internal Server Error Occured");
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTrainee(int id)
     {
-        var deleteStatus = await _traineeService.Delete(id);
-
-        if (!deleteStatus)
+        try
         {
-            return NotFound();
+            var deleteStatus = await _traineeService.Delete(id);
+
+            if (!deleteStatus)
+            {
+                return NotFound();
+            }
+
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Deleted SUccessfully"
+            });
         }
-
-        return Ok(new
+        catch (System.Exception)
         {
-            StatusCode = 200,
-            Message = "Deleted SUccessfully"
-        });
+            Console.WriteLine("Internal Server Error Occured");
+            return Problem("Internal Server Error Occured");
+        }
     }
 
 }
