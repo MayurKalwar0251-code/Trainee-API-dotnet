@@ -69,11 +69,11 @@ public class TraineeService : ITraineeService
         Trainee newTrainee = new Trainee
         {
             Id = id,
-            FirstName = trainee.FirstName,
-            LastName = trainee.LastName,
-            Email = trainee.Email,
+            FirstName = trainee.FirstName!,
+            LastName = trainee.LastName!,
+            Email = trainee.Email!,
             Status = trainee.Status,
-            TechStack = trainee.TechStack,
+            TechStack = trainee.TechStack!,
             CreatedDate = DateOnly.FromDateTime(DateTime.Now),
             UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
         };
@@ -110,11 +110,11 @@ public class TraineeService : ITraineeService
             return null;
         }
 
-        trainee.FirstName = updatedDetails.FirstName;
-        trainee.LastName = updatedDetails.LastName;
-        trainee.Email = updatedDetails.Email;
+        trainee.FirstName = updatedDetails.FirstName!;
+        trainee.LastName = updatedDetails.LastName!;
+        trainee.Email = updatedDetails.Email!;
         trainee.Status = updatedDetails.Status;
-        trainee.TechStack = updatedDetails.TechStack;
+        trainee.TechStack = updatedDetails.TechStack!;
         trainee.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         await _traineeContext.SaveChangesAsync();
