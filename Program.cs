@@ -11,7 +11,13 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<ITraineeService,TraineeService>();
 
-builder.Services.AddDbContext<TraineeContext>(opt => opt.UseInMemoryDatabase("TraineeDB"));
+// 1. Retrieve the connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// 2. Automatically detect or define the MySQL Server version
+var serverVersion = ServerVersion.AutoDetect(connectionString);
+
+builder.Services.AddDbContext<TraineeContext>(opt => opt.UseMySql(connectionString,serverVersion));
 
 var app = builder.Build();
 
