@@ -3,15 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 using BCrypt.Net;
+using AutoMapper;
 
 class UserService : IUserService
 {
     private readonly TraineeContext _traineeContext;
     private readonly IJWTService _jwtService;
-    public UserService(TraineeContext traineeContext,IJWTService jWTService)
+    private readonly IMapper _mapper;
+    public UserService(TraineeContext traineeContext,IJWTService jWTService, IMapper mapper)
     {
         _traineeContext = traineeContext;
         _jwtService = jWTService;
+        _mapper = mapper;
     }
     object IUserService.Login(LoginUserDto userRequest)
     {
@@ -34,8 +37,10 @@ class UserService : IUserService
 
         var jwt = _jwtService.GenerateToken(user);
 
+        UserResponseDto userDto = _mapper.Map<UserResponseDto>(user);
+
         return new {
-            user,
+            userDto,
             expiresIn = DateTime.Now.AddMinutes(15),
             token = jwt,
         };

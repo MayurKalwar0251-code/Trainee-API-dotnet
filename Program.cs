@@ -4,10 +4,16 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.Models;
 using Scalar.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddAutoMapper(cfg => 
+{
+    // Scans the assembly containing "Program" for Profile classes
+    cfg.AddMaps(typeof(Program)); 
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
