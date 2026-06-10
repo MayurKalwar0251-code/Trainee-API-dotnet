@@ -16,4 +16,5 @@ public class TraineeContext : DbContext
     public DbSet<LearningTask> LearningTasks {get; set;} = null!;
     public DbSet<TaskAssignment> TaskAssignments {get; set;} = null!;
     public DbSet<Submission> Submissions {get; set;} = null!;
+    public DbSet<Review> Reviews {get; set;} = null!;
 }
