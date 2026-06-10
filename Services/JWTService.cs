@@ -26,7 +26,7 @@ public class JWTService : IJWTService
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(15),
+            expires: DateTime.Now.AddMinutes(double.Parse(_configuration["Jwt:Expiry"])),
             signingCredentials: creds
         );
 

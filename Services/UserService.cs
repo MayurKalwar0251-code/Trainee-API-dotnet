@@ -10,11 +10,13 @@ class UserService : IUserService
     private readonly TraineeContext _traineeContext;
     private readonly IJWTService _jwtService;
     private readonly IMapper _mapper;
-    public UserService(TraineeContext traineeContext,IJWTService jWTService, IMapper mapper)
+    private readonly IConfiguration _configuration;
+    public UserService(TraineeContext traineeContext,IJWTService jWTService, IMapper mapper, IConfiguration configuration)
     {
         _traineeContext = traineeContext;
         _jwtService = jWTService;
         _mapper = mapper;
+        _configuration = configuration;
     }
     object IUserService.Login(LoginUserDto userRequest)
     {
@@ -41,7 +43,7 @@ class UserService : IUserService
 
         return new {
             userDto,
-            expiresIn = DateTime.Now.AddMinutes(15),
+            expiresIn = DateTime.Now.AddMinutes(double.Parse(_configuration["Jwt:Expiry"]!)),
             token = jwt,
         };
     }

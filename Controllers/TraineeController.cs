@@ -35,8 +35,8 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine("Internal Server Error Occured");
-            return Problem("Internal Server Error Occured");
+            Console.WriteLine(ErrorConstants.InternalServerError);
+            return Problem(ErrorConstants.InternalServerError);
         }
     }
 
@@ -56,8 +56,8 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine("Internal Server Error Occured");
-            return Problem("Internal Server Error Occured");
+            Console.WriteLine(ErrorConstants.InternalServerError);
+            return Problem(ErrorConstants.InternalServerError);
         }
     }
 
@@ -70,8 +70,8 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine("Internal Server Error Occured");
-            return Problem("Internal Server Error Occured");
+            Console.WriteLine(ErrorConstants.InternalServerError);
+            return Problem(ErrorConstants.InternalServerError);
         }
     }
 
@@ -91,8 +91,8 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine("Internal Server Error Occured");
-            return Problem("Internal Server Error Occured");
+            Console.WriteLine(ErrorConstants.InternalServerError);
+            return Problem(ErrorConstants.InternalServerError);
         }
     }
 
@@ -110,14 +110,14 @@ public class TraineeController : ControllerBase
 
             return Ok(new
             {
-                StatusCode = 200,
-                Message = "Deleted SUccessfully"
+                StatusCode = StatusCodes.Status200OK,
+                Message = MessagesConstants.DeletedSuccessfully
             });
         }
         catch (System.Exception)
         {
-            Console.WriteLine("Internal Server Error Occured");
-            return Problem("Internal Server Error Occured");
+            Console.WriteLine(ErrorConstants.InternalServerError);
+            return Problem(ErrorConstants.InternalServerError);
         }
     }
 

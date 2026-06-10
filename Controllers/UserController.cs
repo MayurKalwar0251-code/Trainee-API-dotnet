@@ -12,17 +12,11 @@ public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
 
-    private readonly IJWTService _jwtService;
-
     private readonly IUserService _userService;
 
-    private readonly IConfiguration _configuration;
-
-    public UserController(ILogger<UserController> logger,IUserService userService, IConfiguration configuration, IJWTService jWTService)
+    public UserController(ILogger<UserController> logger,IUserService userService)
     {
         _logger = logger;
-        _configuration = configuration;
-        _jwtService = jWTService;
         _userService = userService;
     }
 
@@ -31,7 +25,7 @@ public class UserController : ControllerBase
     {
         return Ok(new
         {
-            message = "Sign up"
+            message = MessagesConstants.SignUpSuccessfully
         });
     }
     
@@ -42,9 +36,16 @@ public class UserController : ControllerBase
 
         if (user == null)
         {
-            return NotFound("Invalid Credentials or User Not Found");
+            return NotFound(new
+            {
+                ErrorConstants.InvalidCredentials
+            });
         }
 
-        return Ok(user);
+        return Ok(new
+        {
+            user,
+            message = MessagesConstants.LoginSuccessfully
+        });
     }
 }
