@@ -1,5 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.IdentityModel.Tokens;
+using TrainineeAPI.DTOs;
 namespace TrainineeAPI.Controllers;
 
 [ApiController]
@@ -8,9 +12,18 @@ public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
 
-    public UserController(ILogger<UserController> logger)
+    private readonly IJWTService _jwtService;
+
+    private readonly IUserService _userService;
+
+    private readonly IConfiguration _configuration;
+
+    public UserController(ILogger<UserController> logger,IUserService userService, IConfiguration configuration, IJWTService jWTService)
     {
         _logger = logger;
+        _configuration = configuration;
+        _jwtService = jWTService;
+        _userService = userService;
     }
 
     [HttpPost("/signup")]
@@ -23,11 +36,15 @@ public class UserController : ControllerBase
     }
     
     [HttpPost("/login")]
-    public IActionResult SignIn()
+    public IActionResult SignIn(LoginUserDto userBody)
     {
-        return Ok(new
+        var user = _userService.Login(userBody);
+
+        if (user == null)
         {
-            message = "Sign In"
-        });
+            return NotFound("Invalid Credentials or User Not Found");
+        }
+
+        return Ok(user);
     }
 }

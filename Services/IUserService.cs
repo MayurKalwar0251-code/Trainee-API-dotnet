@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using TrainineeAPI.DTOs;
 public interface IUserService
 {
     IActionResult SignUp();
     
-    IActionResult Login();
+    Object Login(LoginUserDto userReq);
 }
