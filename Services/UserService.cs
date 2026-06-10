@@ -24,9 +24,9 @@ class UserService : IUserService
         }
 
         // create hash for pass
-        string hashedPass = HashUserPassword(userRequest.PasswordHash);
+        string hashedPass = PasswordUtility.HashUserPassword(userRequest.PasswordHash);
         // compare passwords
-        bool checkPass = VerifyUserPassword(userRequest.PasswordHash,user.PasswordHash);
+        bool checkPass = PasswordUtility.VerifyUserPassword(userRequest.PasswordHash,user.PasswordHash);
         if (!checkPass)
         {
             return null;
@@ -46,14 +46,4 @@ class UserService : IUserService
         throw new NotImplementedException();
     }
 
-    public string HashUserPassword(string plaintextPassword)
-    {
-        // Automatically manages salting and outputs a single combined string
-        return BCrypt.Net.BCrypt.HashPassword(plaintextPassword);
-    }
-    public bool VerifyUserPassword(string inputPassword, string storedHashFromDatabase)
-    {
-        // Returns true if match, false if invalid
-        return BCrypt.Net.BCrypt.Verify(inputPassword, storedHashFromDatabase);
-    }
 }
