@@ -18,7 +18,7 @@ class UserService : IUserService
         _mapper = mapper;
         _configuration = configuration;
     }
-    object IUserService.Login(LoginUserDto userRequest)
+    object? IUserService.Login(LoginUserDto userRequest)
     {
         var user = _traineeContext.Users.FirstOrDefault(u => u.Email == userRequest.Email);
 
