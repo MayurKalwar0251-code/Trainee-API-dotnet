@@ -32,7 +32,7 @@ class UserService : IUserService
             return null;
         }
 
-        var jwt = _jwtService.GenerateToken(userRequest);
+        var jwt = _jwtService.GenerateToken(user);
 
         return new {
             user,

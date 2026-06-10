@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.Models;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,9 +43,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUi(options =>
+    // Accessible at /scalar/v1
+    app.MapScalarApiReference(options =>
     {
-        options.DocumentPath = "/openapi/v1.json";
+        // Explicitly force the theme to stay in Dark Mode
+        options.ForceDarkMode(); 
+        
+        // Optional: Pick a specific dark aesthetic theme flavor 
+        // options.WithTheme(ScalarTheme.Moon); 
     });
 }
 

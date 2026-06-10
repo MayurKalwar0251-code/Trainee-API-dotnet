@@ -14,8 +14,4 @@ public class LoginUserDto
 
     [Required]
     public required string PasswordHash { get; set; }
-
-    [Required]
-    [EnumDataType(typeof(UserEnumValues),ErrorMessage = "Invalid Role Specified")]
-    public required string Role { get; set; }
 }

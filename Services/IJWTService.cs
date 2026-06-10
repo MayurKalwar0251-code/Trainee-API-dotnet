@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
-using TrainineeAPI.DTOs;
+using TrainineeAPI.Models;
 public interface IJWTService
 {
-    string GenerateToken(LoginUserDto loginUserDto);
+    string GenerateToken(User loginUserDto);
 }

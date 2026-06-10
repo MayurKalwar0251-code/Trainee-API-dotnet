@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using TrainineeAPI.DTOs;
+using TrainineeAPI.Models;
 
 public class JWTService : IJWTService
 {
@@ -11,7 +11,7 @@ public class JWTService : IJWTService
     {
         _configuration = configuration;
     }
-    public string GenerateToken(LoginUserDto userBody)
+    public string GenerateToken(User userBody)
     {
         var claims = new[]
         {
