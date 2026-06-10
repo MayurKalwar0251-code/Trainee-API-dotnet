@@ -12,4 +12,5 @@ public class TraineeContext : DbContext
     public DbSet<Trainee> Trainees {get; set;} = null!;
 
     public DbSet<User> Users {get; set;} = null!;
+    public DbSet<Mentor> Mentors {get; set;} = null!;
 }
