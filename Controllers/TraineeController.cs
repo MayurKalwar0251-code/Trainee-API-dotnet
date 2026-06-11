@@ -18,23 +18,21 @@ public class TraineeController : ControllerBase
         _traineeService = traineeService;
     }
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee([FromQuery] FilterTraineeDto filter)
     {
-        Console.WriteLine("FETCHING");
         try
         {
-            if (!string.IsNullOrWhiteSpace(filter.Search))
+            if (UtilityFunctions.CheckHasFilterQuery(filter))
             {
-                var filterResult = await _traineeService.FilterBySearch(filter.Search);
+                Console.WriteLine("WE are here in filter");
+                var filterResult = await _traineeService.FilterByQuery(filter);
                 return Ok(filterResult);
             }
             else
             {
                 var traineeDtos = await _traineeService.GetAll();
-                Console.WriteLine("DATAAA");
-                Console.WriteLine("DATAAA" + traineeDtos);
                 return Ok(traineeDtos);
             }
         }

@@ -140,4 +140,47 @@ public class TraineeService : ITraineeService
 
         return traineeDtos;
     }
+    public async Task<List<TraineeDto>> FilterByQuery(FilterTraineeDto filter)
+    {
+        Console.WriteLine("FILTER PARAM : " + filter);
+        Console.WriteLine("FILTER PARAM Search : " + filter.Search);
+        Console.WriteLine("FILTER PARAM NO: " + filter.PageNumber);
+        Console.WriteLine("FILTER PARAM Size: " + filter.PageSize);
+        Console.WriteLine("FILTER PARAM Status: " + filter.Status);
+
+        IQueryable<Trainee> filterResult = _traineeContext.Trainees;
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            filterResult = filterResult.Where(item => item.FirstName.Contains(filter.Search) 
+                                                                        || item.LastName.Contains(filter.Search) 
+                                                                        || item.Email.Contains(filter.Search) 
+                                                                        || item.TechStack.Contains(filter.Search)
+                                                                        );
+
+            Console.WriteLine("COUNT SearchFIlter : " + filterResult.Count());
+        }
+
+        if (filter.Status.HasValue)
+        {
+            filterResult = filterResult.Where(item => item.Status == filter.Status);
+
+            Console.WriteLine("COUNT StatusFIlter : " + filterResult.Count());
+        }
+
+        // pagination logic
+        int pageNumber = (int)(filter.PageNumber > 0 ? filter.PageNumber : 1);
+        int pageSize = (int)(filter.PageSize > 0 ? filter.PageSize : 10);
+        int totalDocs = filterResult.Count();
+        filterResult = filterResult.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        
+        Console.WriteLine("COUNT PaginationFilter : " + filterResult.Count());
+
+        List<Trainee> result = await filterResult.ToListAsync();
+
+        List<TraineeDto> resultDTO = result.Select(item => _mapper.Map<TraineeDto>(item)).ToList();
+
+
+        return resultDTO;
+    }
 }

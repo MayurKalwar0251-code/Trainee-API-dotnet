@@ -13,5 +13,6 @@ public interface ITraineeService
     Task<bool> Delete(int id);
 
     Task<List<TraineeDto>> FilterBySearch(string search); 
+    Task<List<TraineeDto>> FilterByQuery(FilterTraineeDto filter); 
     
 }
