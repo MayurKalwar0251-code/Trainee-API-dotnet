@@ -8,6 +8,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000",
+                                "http://localhost:5173")
+                .AllowAnyMethod();
+        });
+});
+
 // Add services to the container.
 builder.Services.AddAutoMapper(cfg => 
 {
@@ -61,6 +72,8 @@ if (app.Environment.IsDevelopment())
         // options.WithTheme(ScalarTheme.Moon); 
     });
 }
+
+app.UseCors();
 
 app.UseAuthentication();
 
