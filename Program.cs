@@ -33,6 +33,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<ITraineeService,TraineeService>();
 builder.Services.AddScoped<IJWTService,JWTService>();
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<IMentorService,MentorService>();
 
 // 1. Retrieve the connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

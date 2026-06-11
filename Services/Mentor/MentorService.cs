@@ -1,0 +1,105 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using TrainineeAPI.DTOs;
+using TrainineeAPI.Models;
+
+public class MentorService : IMentorService
+{
+    private readonly TraineeContext _traineeContext;
+    private readonly IMapper _mapper;
+
+    public MentorService(TraineeContext traineeContext,IMapper mapper)
+    {
+        _traineeContext = traineeContext;
+        _mapper = mapper;
+    }
+
+    public MentorDto Create(CreateMentorDto mentor)
+    {
+        var id = _traineeContext.Mentors.Count() == 0 ? 1 : _traineeContext.Mentors.Max(t => t.Id) + 1;
+
+        Mentor newMentor = new Mentor
+        {
+            Id = id,
+            FirstName = mentor.FirstName!,
+            LastName = mentor.LastName!,
+            Email = mentor.Email!,
+            Expertise = mentor.Expertise,
+            Status = mentor.Status,
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
+        };
+
+        MentorDto mentorDto = _mapper.Map<MentorDto>(newMentor);
+
+        _traineeContext.Mentors.Add(newMentor);
+
+        _traineeContext.SaveChangesAsync();
+
+        return mentorDto;
+    }
+
+    public async Task<bool> Delete(int id)
+    {
+        var mentor = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
+
+        if (mentor == null)
+        {
+            return false;
+        }
+
+        _traineeContext.Mentors.Remove(mentor);
+
+        await _traineeContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<List<MentorDto>> GetAll()
+    {
+        var mentors = await _traineeContext.Mentors.ToListAsync();
+
+        var mentorDtos = mentors
+            .Select(t => _mapper.Map<MentorDto>(t))
+            .ToList();
+
+        return mentorDtos;
+    }
+
+    public MentorDto? GetById(int id)
+    {
+        var mentorById = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
+
+        if (mentorById == null)
+        {
+            return null;
+        }
+
+        MentorDto mentor = _mapper.Map<MentorDto>(mentorById);
+
+        return mentor;
+    }
+
+    public async Task<MentorDto?> Update(int id, UpdateMentorDto updatedDetails)
+    {
+        var mentor = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
+
+        if (mentor == null)
+        {
+            return null;
+        }
+
+        mentor.FirstName = updatedDetails.FirstName!;
+        mentor.LastName = updatedDetails.LastName!;
+        mentor.Email = updatedDetails.Email!;
+        mentor.Status = updatedDetails.Status!;
+        mentor.Expertise = updatedDetails.Expertise!;
+        mentor.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
+
+        await _traineeContext.SaveChangesAsync();
+
+        var response = _mapper.Map<MentorDto>(mentor);
+
+        return response;
+    }
+}
