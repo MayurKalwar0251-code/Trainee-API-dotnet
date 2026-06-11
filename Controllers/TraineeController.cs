@@ -18,7 +18,7 @@ public class TraineeController : ControllerBase
         _traineeService = traineeService;
     }
 
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee([FromQuery] FilterTraineeDto filter)
     {
@@ -45,7 +45,7 @@ public class TraineeController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpGet("{id}")]
     public ActionResult<TraineeDto> GetTraineeById(int id)
     {
@@ -67,7 +67,7 @@ public class TraineeController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPost]
     public ActionResult<TraineeDto> CreateTrainee(CreateTraineeDto trainee)
     {
@@ -82,7 +82,7 @@ public class TraineeController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<TraineeDto>> UpdateTrainee(int id, UpdateTraineeDto updatedDetails)
     {
@@ -104,7 +104,7 @@ public class TraineeController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTrainee(int id)
     {
