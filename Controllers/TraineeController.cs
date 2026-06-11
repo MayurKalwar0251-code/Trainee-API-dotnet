@@ -18,7 +18,7 @@ public class TraineeController : ControllerBase
         _traineeService = traineeService;
     }
 
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee([FromQuery] FilterTraineeDto filter)
     {
