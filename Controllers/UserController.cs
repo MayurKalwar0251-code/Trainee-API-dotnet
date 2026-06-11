@@ -36,11 +36,14 @@ public class UserController : ControllerBase
 
         if (user == null)
         {
+            _logger.LogError(ErrorConstants.InvalidCredentials);
             return NotFound(new
             {
                 ErrorConstants.InvalidCredentials
             });
         }
+
+        _logger.LogInformation(MessagesConstants.LoginSuccessfully);
 
         return Ok(new
         {

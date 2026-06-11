@@ -13,22 +13,6 @@ public class TraineeService : ITraineeService
         _traineeContext = traineeContext;
         _mapper = mapper;
     }
-
-    // public TraineeDto ConvertToTraineeDTOResponse(Trainee data)
-    // {
-    //     TraineeDto converted = new TraineeDto
-    //     {
-    //         FirstName = data.FirstName,
-    //         LastName = data.LastName,
-    //         Email = data.Email,
-    //         Status = data.Status,
-    //         TechStack = data.TechStack,
-    //         CreatedDate = data.CreatedDate,
-    //         UpdatedDate = data.UpdatedDate,
-    //     };
-    //     return converted;
-    // }
-
     public async Task<List<TraineeDto>> GetAll()
     {
         var trainees = await _traineeContext.Trainees.ToListAsync();

@@ -38,7 +38,7 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.InternalServerError);
             return Problem(ErrorConstants.InternalServerError);
         }
     }
@@ -53,6 +53,7 @@ public class TraineeController : ControllerBase
 
             if (traineeById == null)
             {
+                _logger.LogError(ErrorConstants.UserNotFound);
                 return NotFound();
             }
 
@@ -60,7 +61,7 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.InternalServerError);
             return Problem(ErrorConstants.InternalServerError);
         }
     }
@@ -71,11 +72,14 @@ public class TraineeController : ControllerBase
     {
         try
         {
-            return _traineeService.Create(trainee);
+            Console.WriteLine("Trainee Creation Started");
+            TraineeDto result = _traineeService.Create(trainee);
+            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+            return result;
         }
         catch (System.Exception)
         {
-            Console.WriteLine(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.InternalServerError);
             return Problem(ErrorConstants.InternalServerError);
         }
     }
@@ -90,14 +94,15 @@ public class TraineeController : ControllerBase
 
             if (updateTraine == null)
             {
+                _logger.LogError(ErrorConstants.UserNotFound);
                 return NotFound();
             }
-
+            _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
             return Ok(updateTraine);
         }
         catch (System.Exception)
         {
-            Console.WriteLine(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.InternalServerError);
             return Problem(ErrorConstants.InternalServerError);
         }
     }
@@ -112,8 +117,11 @@ public class TraineeController : ControllerBase
 
             if (!deleteStatus)
             {
+                _logger.LogError(ErrorConstants.UserNotFound);
                 return NotFound();
             }
+
+            _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
 
             return Ok(new
             {
@@ -123,7 +131,7 @@ public class TraineeController : ControllerBase
         }
         catch (System.Exception)
         {
-            Console.WriteLine(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.InternalServerError);
             return Problem(ErrorConstants.InternalServerError);
         }
     }
