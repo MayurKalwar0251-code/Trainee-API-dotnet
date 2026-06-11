@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
@@ -5,33 +6,36 @@ using TrainineeAPI.Models;
 public class TraineeService : ITraineeService
 {
     private readonly TraineeContext _traineeContext;
+    private readonly IMapper _mapper;
 
-    public TraineeService(TraineeContext traineeContext)
+    public TraineeService(TraineeContext traineeContext,IMapper mapper)
     {
         _traineeContext = traineeContext;
+        _mapper = mapper;
     }
 
-    public TraineeDto ConvertToTraineeDTOResponse(Trainee data)
-    {
-        TraineeDto converted = new TraineeDto
-        {
-            FirstName = data.FirstName,
-            LastName = data.LastName,
-            Email = data.Email,
-            Status = data.Status,
-            TechStack = data.TechStack,
-            CreatedDate = data.CreatedDate,
-            UpdatedDate = data.UpdatedDate,
-        };
-        return converted;
-    }
+    // public TraineeDto ConvertToTraineeDTOResponse(Trainee data)
+    // {
+    //     TraineeDto converted = new TraineeDto
+    //     {
+    //         FirstName = data.FirstName,
+    //         LastName = data.LastName,
+    //         Email = data.Email,
+    //         Status = data.Status,
+    //         TechStack = data.TechStack,
+    //         CreatedDate = data.CreatedDate,
+    //         UpdatedDate = data.UpdatedDate,
+    //     };
+    //     return converted;
+    // }
 
     public async Task<List<TraineeDto>> GetAll()
     {
         var trainees = await _traineeContext.Trainees.ToListAsync();
 
         var traineeDtos = trainees
-            .Select(t => ConvertToTraineeDTOResponse(t))
+            .Select(t => _mapper.Map<TraineeDto>(t))
+            // .Select(t => ConvertToTraineeDTOResponse(t))
             .ToList();
 
         return traineeDtos;
@@ -46,7 +50,7 @@ public class TraineeService : ITraineeService
             return null;
         }
 
-        TraineeDto traineeDto = ConvertToTraineeDTOResponse(traineeById);
+        TraineeDto traineeDto = _mapper.Map<TraineeDto>(traineeById);
 
         return traineeDto;
     }
@@ -119,16 +123,7 @@ public class TraineeService : ITraineeService
 
         await _traineeContext.SaveChangesAsync();
 
-        var response = new TraineeDto
-        {
-            FirstName = trainee.FirstName,
-            LastName = trainee.LastName,
-            Email = trainee.Email,
-            Status = trainee.Status,
-            TechStack = trainee.TechStack,
-            CreatedDate = trainee.CreatedDate,
-            UpdatedDate = trainee.UpdatedDate
-        };
+        var response = _mapper.Map<TraineeDto>(trainee);
 
         return response;
     }
@@ -141,7 +136,7 @@ public class TraineeService : ITraineeService
                                                                     || item.TechStack.Contains(search))
                                                                     .ToListAsync();
 
-        var traineeDtos = filterResult.Select(item => ConvertToTraineeDTOResponse(item)).ToList();
+        var traineeDtos = filterResult.Select(item => _mapper.Map<TraineeDto>(item)).ToList();
 
         return traineeDtos;
     }

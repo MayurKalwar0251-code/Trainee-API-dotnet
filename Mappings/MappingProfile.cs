@@ -8,5 +8,6 @@ public class MappingProfile : Profile
     {
         // Maps properties with identical names automatically
         CreateMap<User, UserResponseDto>().ReverseMap();
+        CreateMap<Trainee, TraineeDto>().ReverseMap();
     }
 }
