@@ -1,15 +1,16 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TrainineeAPI.Models;
 
-public enum TaskAssignmentEnumValues {Assigned , InProgress , Submitted , Reviewed , Completed }
-public class TaskAssignment
+public class TaskAssignmentDto
 {
     public long Id { get; set; }
     public required long TraineeId { get; set; }
-    public Trainee? Trainee { get; set; }
     public required long MentorId { get; set; }
-    public Mentor? Mentor { get; set; }
     public required long LearningTaskId { get; set; }
-    public LearningTask? LearningTask { get; set; }
+
+    [Required]
+    [EnumDataType(typeof(TaskAssignmentEnumValues),ErrorMessage = "Invalid Task Assignment Status Specified")]
     public required string Status { get; set; }
     public required string Remarks { get; set; }
     public DateOnly AssignedDate { get; set; }
