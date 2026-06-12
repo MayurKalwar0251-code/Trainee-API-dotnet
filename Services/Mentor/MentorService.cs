@@ -14,7 +14,7 @@ public class MentorService : IMentorService
         _mapper = mapper;
     }
 
-    public MentorDto Create(CreateMentorDto mentor)
+    public ServiceResult<MentorDto> Create(CreateMentorDto mentor)
     {
         var id = _traineeContext.Mentors.Count() == 0 ? 1 : _traineeContext.Mentors.Max(t => t.Id) + 1;
 
@@ -36,26 +36,26 @@ public class MentorService : IMentorService
 
         _traineeContext.SaveChangesAsync();
 
-        return mentorDto;
+        return ServiceResult<MentorDto>.Ok(mentorDto);
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task<ServiceResult<bool>> Delete(int id)
     {
         var mentor = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
 
         if (mentor == null)
         {
-            return false;
+            return ServiceResult<bool>.Fail("Document not found");
         }
 
         _traineeContext.Mentors.Remove(mentor);
 
         await _traineeContext.SaveChangesAsync();
 
-        return true;
+        return ServiceResult<bool>.Ok(true);
     }
 
-    public async Task<List<MentorDto>> GetAll()
+    public async Task<ServiceResult<List<MentorDto>>> GetAll()
     {
         var mentors = await _traineeContext.Mentors.ToListAsync();
 
@@ -63,30 +63,30 @@ public class MentorService : IMentorService
             .Select(t => _mapper.Map<MentorDto>(t))
             .ToList();
 
-        return mentorDtos;
+        return ServiceResult<List<MentorDto>>.Ok(mentorDtos);
     }
 
-    public MentorDto? GetById(int id)
+    public ServiceResult<MentorDto> GetById(int id)
     {
         var mentorById = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
 
         if (mentorById == null)
         {
-            return null;
+            return ServiceResult<MentorDto>.Fail("Document not found");
         }
 
         MentorDto mentor = _mapper.Map<MentorDto>(mentorById);
 
-        return mentor;
+        return ServiceResult<MentorDto>.Ok(mentor);
     }
 
-    public async Task<MentorDto?> Update(int id, UpdateMentorDto updatedDetails)
+    public async Task<ServiceResult<MentorDto>> Update(int id, UpdateMentorDto updatedDetails)
     {
         var mentor = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
 
         if (mentor == null)
         {
-            return null;
+            return ServiceResult<MentorDto>.Fail("Document not found");
         }
 
         mentor.FirstName = updatedDetails.FirstName!;
@@ -100,6 +100,6 @@ public class MentorService : IMentorService
 
         var response = _mapper.Map<MentorDto>(mentor);
 
-        return response;
+        return ServiceResult<MentorDto>.Ok(response);
     }
 }

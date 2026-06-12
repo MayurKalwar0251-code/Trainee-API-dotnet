@@ -65,7 +65,7 @@ public class SubmissionController : ControllerBase
         try
         {
             Console.WriteLine("Submission Creation Started");
-            SubmissionDto? result = await _submissionService.Create(submission);
+            ServiceResult<SubmissionDto> result = await _submissionService.Create(submission);
             if (result == null)
             {
                 return Ok(new
@@ -74,7 +74,7 @@ public class SubmissionController : ControllerBase
                 });
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return result;
+            return Ok(result);
         }
         catch (System.Exception)
         {

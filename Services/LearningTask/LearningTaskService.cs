@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
@@ -14,7 +15,7 @@ public class LearningTaskService : ILearningTaskService
         _mapper = mapper;
     }
 
-    public LearningTaskDto Create(CreateLearningTaskDto learningTask)
+    public async Task<ServiceResult<LearningTaskDto>> Create(CreateLearningTaskDto learningTask)
     {
         var id = _traineeContext.LearningTasks.Count() == 0 ? 1 : _traineeContext.LearningTasks.Max(t => t.Id) + 1;
 
@@ -30,63 +31,63 @@ public class LearningTaskService : ILearningTaskService
             UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
         };
 
-        LearningTaskDto mentorDto = _mapper.Map<LearningTaskDto>(newLearningTask);
+        LearningTaskDto learningTaskDto = _mapper.Map<LearningTaskDto>(newLearningTask);
 
         _traineeContext.LearningTasks.Add(newLearningTask);
 
-        _traineeContext.SaveChangesAsync();
+        await _traineeContext.SaveChangesAsync();
 
-        return mentorDto;
+        return ServiceResult<LearningTaskDto>.Ok(learningTaskDto);
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task<ServiceResult<bool>> Delete(int id)
     {
         var learningTask = _traineeContext.LearningTasks.FirstOrDefault(t => t.Id == id);
 
         if (learningTask == null)
         {
-            return false;
+            return ServiceResult<bool>.Fail("Document not found");
         }
 
         _traineeContext.LearningTasks.Remove(learningTask);
 
         await _traineeContext.SaveChangesAsync();
 
-        return true;
+        return ServiceResult<bool>.Ok(true);
     }
 
-    public async Task<List<LearningTaskDto>> GetAll()
+    public async Task<ServiceResult<List<LearningTaskDto>>> GetAll()
     {
         var mentors = await _traineeContext.LearningTasks.ToListAsync();
 
-        var mentorDtos = mentors
+        var learningTaskDtos = mentors
             .Select(t => _mapper.Map<LearningTaskDto>(t))
             .ToList();
 
-        return mentorDtos;
+        return ServiceResult<List<LearningTaskDto>>.Ok(learningTaskDtos);
     }
 
-    public LearningTaskDto? GetById(int id)
+    public ServiceResult<LearningTaskDto> GetById(int id)
     {
         var mentorById = _traineeContext.LearningTasks.FirstOrDefault(t => t.Id == id);
 
         if (mentorById == null)
         {
-            return null;
+            return ServiceResult<LearningTaskDto>.Fail("Document not found");
         }
 
         LearningTaskDto learningTask = _mapper.Map<LearningTaskDto>(mentorById);
 
-        return learningTask;
+        return ServiceResult<LearningTaskDto>.Ok(learningTask);
     }
 
-    public async Task<LearningTaskDto?> Update(int id, UpdateLearningTaskDto updatedDetails)
+    public async Task<ServiceResult<LearningTaskDto>> Update(int id, UpdateLearningTaskDto updatedDetails)
     {
         var learningTask = _traineeContext.LearningTasks.FirstOrDefault(t => t.Id == id);
 
         if (learningTask == null)
         {
-            return null;
+            return ServiceResult<LearningTaskDto>.Fail("Document not found");
         }
 
         learningTask.Title = updatedDetails.Title!;
@@ -100,6 +101,6 @@ public class LearningTaskService : ILearningTaskService
 
         var response = _mapper.Map<LearningTaskDto>(learningTask);
 
-        return response;
+        return ServiceResult<LearningTaskDto>.Ok(response);
     }
 }

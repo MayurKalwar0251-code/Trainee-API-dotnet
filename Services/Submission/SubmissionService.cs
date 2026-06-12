@@ -15,7 +15,7 @@ public class SubmissionService : ISubmissionService
         _mapper = mapper;
     }
 
-    public async Task<SubmissionDto> Create(CreateSubmissionDto request)
+    public async Task<ServiceResult<SubmissionDto>> Create(CreateSubmissionDto request)
     {
         var id = _traineeContext.Submissions.Count() == 0 ? 1 : _traineeContext.Submissions.Max(s => s.Id + 1);
 
@@ -25,7 +25,7 @@ public class SubmissionService : ISubmissionService
         if (taskAssignment == null)
         {
             Console.WriteLine("Task Assignment doc not found");
-            return null;
+            return ServiceResult<SubmissionDto>.Fail("Task Assignment Doc doesnt exist");
         }
 
         Submission submission = new Submission
@@ -45,10 +45,10 @@ public class SubmissionService : ISubmissionService
 
         SubmissionDto submissionDto = _mapper.Map<SubmissionDto>(submission);
 
-        return submissionDto;
+        return ServiceResult<SubmissionDto>.Ok(submissionDto);
     }
 
-    public async Task<List<SubmissionDto>> GetAll()
+    public async Task<ServiceResult<List<SubmissionDto>>> GetAll()
     {
         var submissions = await _traineeContext.Submissions.ToListAsync();
 
@@ -56,20 +56,22 @@ public class SubmissionService : ISubmissionService
             .Select(t => _mapper.Map<SubmissionDto>(t))
             .ToList();
 
-        return submissionDtos;
+        return ServiceResult<List<SubmissionDto>>.Ok(submissionDtos);
+
     }
 
-    public SubmissionDto? GetById(int id)
+    public ServiceResult<SubmissionDto> GetById(int id)
     {
         var submissionById = _traineeContext.Submissions.FirstOrDefault(t => t.Id == id);
 
         if (submissionById == null)
-        {
-            return null;
+        {     
+            return ServiceResult<SubmissionDto>.Fail("Document not found");
         }
 
         SubmissionDto submissionDtos = _mapper.Map<SubmissionDto>(submissionById);
 
-        return submissionDtos;
+        return ServiceResult<SubmissionDto>.Ok(submissionDtos);
+
     }
 }

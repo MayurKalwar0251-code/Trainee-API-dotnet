@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrainineeAPI.DTOs;
@@ -18,7 +19,7 @@ public class LearningTaskController : ControllerBase
         _learningTaskService = learningTaskService;
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<LearningTaskDto>>> GetAllLearningTask([FromQuery] FilterTraineeDto filter)
     {
@@ -34,7 +35,7 @@ public class LearningTaskController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpGet("{id}")]
     public ActionResult<LearningTaskDto> GetLearningTaskById(int id)
     {
@@ -57,16 +58,16 @@ public class LearningTaskController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPost]
-    public ActionResult<LearningTaskDto> CreateLearningTask(CreateLearningTaskDto learningTask)
+    public async Task<ActionResult<LearningTaskDto>> CreateLearningTask(CreateLearningTaskDto learningTask)
     {
         try
         {
             Console.WriteLine("Learning Task Creation Started");
-            LearningTaskDto result = _learningTaskService.Create(learningTask);
+            var result = await _learningTaskService.Create(learningTask);
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return result;
+            return Ok(result);
         }
         catch (System.Exception)
         {
@@ -75,7 +76,7 @@ public class LearningTaskController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<LearningTaskDto>> UpdateLearningTask(int id, UpdateLearningTaskDto updatedDetails)
     {
@@ -98,7 +99,7 @@ public class LearningTaskController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteLearningTask(int id)
     {
@@ -106,7 +107,7 @@ public class LearningTaskController : ControllerBase
         {
             var deleteStatus = await _learningTaskService.Delete(id);
 
-            if (!deleteStatus)
+            if (!deleteStatus.Data)
             {
                 _logger.LogError(ErrorConstants.UserNotFound);
                 return NotFound();

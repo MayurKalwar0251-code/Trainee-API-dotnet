@@ -8,12 +8,12 @@ public class TraineeService : ITraineeService
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
 
-    public TraineeService(TraineeContext traineeContext,IMapper mapper)
+    public TraineeService(TraineeContext traineeContext, IMapper mapper)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
     }
-    public async Task<List<TraineeDto>> GetAll()
+    public async Task<ServiceResult<List<TraineeDto>>> GetAll()
     {
         var trainees = await _traineeContext.Trainees.ToListAsync();
 
@@ -22,24 +22,24 @@ public class TraineeService : ITraineeService
             // .Select(t => ConvertToTraineeDTOResponse(t))
             .ToList();
 
-        return traineeDtos;
+        return ServiceResult<List<TraineeDto>>.Ok(traineeDtos);
     }
 
-    public TraineeDto? GetById(int id)
+    public ServiceResult<TraineeDto> GetById(int id)
     {
         var traineeById = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
         if (traineeById == null)
         {
-            return null;
+            return ServiceResult<TraineeDto>.Fail("Document not found");
         }
 
         TraineeDto traineeDto = _mapper.Map<TraineeDto>(traineeById);
 
-        return traineeDto;
+        return ServiceResult<TraineeDto>.Ok(traineeDto);
     }
 
-    public TraineeDto Create(CreateTraineeDto trainee)
+    public ServiceResult<TraineeDto> Create(CreateTraineeDto trainee)
     {
         var id = _traineeContext.Trainees.Count() == 0 ? 1 : _traineeContext.Trainees.Max(t => t.Id) + 1;
 
@@ -70,32 +70,32 @@ public class TraineeService : ITraineeService
 
         _traineeContext.SaveChangesAsync();
 
-        return traineeDto;
+        return ServiceResult<TraineeDto>.Ok(traineeDto);
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task<ServiceResult<bool>> Delete(int id)
     {
         var trainee = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
         if (trainee == null)
         {
-            return false;
+            return ServiceResult<bool>.Fail("Document not found");
         }
 
         _traineeContext.Trainees.Remove(trainee);
 
         await _traineeContext.SaveChangesAsync();
 
-        return true;
+        return ServiceResult<bool>.Ok(true);
     }
 
-    public async Task<TraineeDto?> Update(int id, UpdateTraineeDto updatedDetails)
+    public async Task<ServiceResult<TraineeDto>> Update(int id, UpdateTraineeDto updatedDetails)
     {
         var trainee = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
         if (trainee == null)
         {
-            return null;
+            return ServiceResult<TraineeDto>.Fail("Document not found");
         }
 
         trainee.FirstName = updatedDetails.FirstName!;
@@ -109,22 +109,22 @@ public class TraineeService : ITraineeService
 
         var response = _mapper.Map<TraineeDto>(trainee);
 
-        return response;
+        return ServiceResult<TraineeDto>.Ok(response);
     }
 
-    public async Task<List<TraineeDto>> FilterBySearch(string search)
+    public async Task<ServiceResult<List<TraineeDto>>> FilterBySearch(string search)
     {
-        var filterResult = await _traineeContext.Trainees.Where(item => item.FirstName.Contains(search) 
-                                                                    || item.LastName.Contains(search) 
-                                                                    || item.Email.Contains(search) 
+        var filterResult = await _traineeContext.Trainees.Where(item => item.FirstName.Contains(search)
+                                                                    || item.LastName.Contains(search)
+                                                                    || item.Email.Contains(search)
                                                                     || item.TechStack.Contains(search))
                                                                     .ToListAsync();
 
         var traineeDtos = filterResult.Select(item => _mapper.Map<TraineeDto>(item)).ToList();
 
-        return traineeDtos;
+        return ServiceResult<List<TraineeDto>>.Ok(traineeDtos);
     }
-    public async Task<List<TraineeDto>> FilterByQuery(FilterTraineeDto filter)
+    public async Task<ServiceResult<List<TraineeDto>>> FilterByQuery(FilterTraineeDto filter)
     {
         Console.WriteLine("FILTER PARAM : " + filter);
         Console.WriteLine("FILTER PARAM Search : " + filter.Search);
@@ -136,9 +136,9 @@ public class TraineeService : ITraineeService
 
         if (!string.IsNullOrWhiteSpace(filter.Search))
         {
-            filterResult = filterResult.Where(item => item.FirstName.Contains(filter.Search) 
-                                                                        || item.LastName.Contains(filter.Search) 
-                                                                        || item.Email.Contains(filter.Search) 
+            filterResult = filterResult.Where(item => item.FirstName.Contains(filter.Search)
+                                                                        || item.LastName.Contains(filter.Search)
+                                                                        || item.Email.Contains(filter.Search)
                                                                         || item.TechStack.Contains(filter.Search)
                                                                         );
 
@@ -157,14 +157,13 @@ public class TraineeService : ITraineeService
         int pageSize = (int)(filter.PageSize > 0 ? filter.PageSize : 10);
         int totalDocs = filterResult.Count();
         filterResult = filterResult.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-        
+
         Console.WriteLine("COUNT PaginationFilter : " + filterResult.Count());
 
         List<Trainee> result = await filterResult.ToListAsync();
 
         List<TraineeDto> resultDTO = result.Select(item => _mapper.Map<TraineeDto>(item)).ToList();
 
-
-        return resultDTO;
+        return ServiceResult<List<TraineeDto>>.Ok(resultDTO);
     }
 }

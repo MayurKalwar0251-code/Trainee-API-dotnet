@@ -3,9 +3,9 @@ using TrainineeAPI.Models;
 
 public interface IReviewService
 {
-    Task<List<ReviewDto>> GetAll();
+    Task<ServiceResult<List<ReviewDto>>> GetAll();
 
-    ReviewDto? GetById(int id);
+    ServiceResult<ReviewDto> GetById(int id);
 
-    Task<ReviewDto?> Create(CreateReviewDto dto);
+    Task<ServiceResult<ReviewDto>> Create(CreateReviewDto dto);
 }

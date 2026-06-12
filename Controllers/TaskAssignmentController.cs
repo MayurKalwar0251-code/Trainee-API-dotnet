@@ -65,7 +65,7 @@ public class TaskAssignmentController : ControllerBase
         try
         {
             Console.WriteLine("Task Assignment Creation Started");
-            TaskAssignmentDto? result = await _taskAssignmentService.Create(taskAssignment);
+            ServiceResult<TaskAssignmentDto> result = await _taskAssignmentService.Create(taskAssignment);
             if (result == null)
             {
                 return Ok(new
@@ -75,7 +75,7 @@ public class TaskAssignmentController : ControllerBase
             });
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return result;
+            return Ok(result);
         }
         catch (System.Exception)
         {
@@ -90,7 +90,7 @@ public class TaskAssignmentController : ControllerBase
     {
         try
         {
-            TaskAssignmentDto? updateTaskAssignment = await _taskAssignmentService.Update(id,updatedDetails);
+            ServiceResult<TaskAssignmentDto> updateTaskAssignment = await _taskAssignmentService.Update(id,updatedDetails);
 
             if (updateTaskAssignment == null)
             {

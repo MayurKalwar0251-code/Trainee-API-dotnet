@@ -3,12 +3,12 @@ using TrainineeAPI.Models;
 
 public interface ITaskAssignmentService
 {
-    Task<List<TaskAssignmentDto>> GetAll();
+    Task<ServiceResult<List<TaskAssignmentDto>>> GetAll();
 
-    TaskAssignmentDto? GetById(int id);
+    ServiceResult<TaskAssignmentDto> GetById(int id);
 
-    Task<TaskAssignmentDto?> Create(CreateTaskAssignmentDto dto);
+    Task<ServiceResult<TaskAssignmentDto>> Create(CreateTaskAssignmentDto dto);
 
-    Task<TaskAssignmentDto?> Update(int id, UpdateTaskAssignmentDto dto);
+    Task<ServiceResult<TaskAssignmentDto>> Update(int id, UpdateTaskAssignmentDto dto);
 
 }

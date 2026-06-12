@@ -2,17 +2,17 @@ using TrainineeAPI.DTOs;
 
 public interface ITraineeService
 {
-    Task<List<TraineeDto>> GetAll();
+    Task<ServiceResult<List<TraineeDto>>> GetAll();
 
-    TraineeDto? GetById(int id);
+    ServiceResult<TraineeDto> GetById(int id);
 
-    TraineeDto Create(CreateTraineeDto dto);
+    ServiceResult<TraineeDto> Create(CreateTraineeDto dto);
 
-    Task<TraineeDto?> Update(int id, UpdateTraineeDto dto);
+    Task<ServiceResult<TraineeDto>> Update(int id, UpdateTraineeDto dto);
 
-    Task<bool> Delete(int id);
+    Task<ServiceResult<bool>> Delete(int id);
 
-    Task<List<TraineeDto>> FilterBySearch(string search); 
-    Task<List<TraineeDto>> FilterByQuery(FilterTraineeDto filter); 
+    Task<ServiceResult<List<TraineeDto>>> FilterBySearch(string search); 
+    Task<ServiceResult<List<TraineeDto>>> FilterByQuery(FilterTraineeDto filter); 
     
 }

@@ -3,13 +3,13 @@ using TrainineeAPI.Models;
 
 public interface ILearningTaskService
 {
-    Task<List<LearningTaskDto>> GetAll();
+    Task<ServiceResult<List<LearningTaskDto>>> GetAll();
 
-    LearningTaskDto? GetById(int id);
+    ServiceResult<LearningTaskDto> GetById(int id);
 
-    LearningTaskDto Create(CreateLearningTaskDto dto);
+    Task<ServiceResult<LearningTaskDto>> Create(CreateLearningTaskDto dto);
 
-    Task<LearningTaskDto?> Update(int id, UpdateLearningTaskDto dto);
+    Task<ServiceResult<LearningTaskDto>> Update(int id, UpdateLearningTaskDto dto);
 
-    Task<bool> Delete(int id);
+    Task<ServiceResult<bool>> Delete(int id);
 }

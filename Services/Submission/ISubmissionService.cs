@@ -3,9 +3,9 @@ using TrainineeAPI.Models;
 
 public interface ISubmissionService
 {
-    Task<List<SubmissionDto>> GetAll();
+    Task<ServiceResult<List<SubmissionDto>>> GetAll();
 
-    SubmissionDto? GetById(int id);
+    ServiceResult<SubmissionDto> GetById(int id);
 
-    Task<SubmissionDto> Create(CreateSubmissionDto dto);
+    Task<ServiceResult<SubmissionDto>> Create(CreateSubmissionDto dto);
 }

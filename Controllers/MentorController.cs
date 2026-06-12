@@ -18,7 +18,7 @@ public class MentorController : ControllerBase
         _mentorService = mentorService;
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<MentorDto>>> GetAllMentor([FromQuery] FilterTraineeDto filter)
     {
@@ -34,7 +34,7 @@ public class MentorController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpGet("{id}")]
     public ActionResult<MentorDto> GetMentorById(int id)
     {
@@ -57,16 +57,16 @@ public class MentorController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPost]
     public ActionResult<MentorDto> CreateMentor(CreateMentorDto mentor)
     {
         try
         {
             Console.WriteLine("Mentor Creation Started");
-            MentorDto result = _mentorService.Create(mentor);
+            var result = _mentorService.Create(mentor);
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return result;
+            return Ok(result);
         }
         catch (System.Exception)
         {
@@ -75,7 +75,7 @@ public class MentorController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<MentorDto>> UpdateMentor(int id, UpdateMentorDto updatedDetails)
     {
@@ -98,7 +98,7 @@ public class MentorController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMentor(int id)
     {
@@ -106,7 +106,7 @@ public class MentorController : ControllerBase
         {
             var deleteStatus = await _mentorService.Delete(id);
 
-            if (!deleteStatus)
+            if (!deleteStatus.Data)
             {
                 _logger.LogError(ErrorConstants.UserNotFound);
                 return NotFound();

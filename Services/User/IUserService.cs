@@ -4,5 +4,5 @@ public interface IUserService
 {
     IActionResult SignUp();
     
-    Object? Login(LoginUserDto userReq);
+    ServiceResult<Object> Login(LoginUserDto userReq);
 }

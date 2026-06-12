@@ -51,10 +51,10 @@ public class TraineeController : ControllerBase
         {
             var traineeById = _traineeService.GetById(id);
 
-            if (traineeById == null)
+            if (!traineeById.Success)
             {
                 _logger.LogError(ErrorConstants.UserNotFound);
-                return NotFound();
+                return NotFound(traineeById);
             }
 
             return Ok(traineeById);
@@ -73,9 +73,9 @@ public class TraineeController : ControllerBase
         try
         {
             Console.WriteLine("Trainee Creation Started");
-            TraineeDto result = _traineeService.Create(trainee);
+            var result = _traineeService.Create(trainee);
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return result;
+            return Ok(result);
         }
         catch (System.Exception)
         {
@@ -92,10 +92,10 @@ public class TraineeController : ControllerBase
         {
             var updateTraine = await _traineeService.Update(id,updatedDetails);
 
-            if (updateTraine == null)
+            if (!updateTraine.Success)
             {
                 _logger.LogError(ErrorConstants.UserNotFound);
-                return NotFound();
+                return NotFound(updateTraine);
             }
             _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
             return Ok(updateTraine);
@@ -115,10 +115,10 @@ public class TraineeController : ControllerBase
         {
             var deleteStatus = await _traineeService.Delete(id);
 
-            if (!deleteStatus)
+            if (!deleteStatus.Success)
             {
                 _logger.LogError(ErrorConstants.UserNotFound);
-                return NotFound();
+                return NotFound(deleteStatus);
             }
 
             _logger.LogInformation(MessagesConstants.DeletedSuccessfully);

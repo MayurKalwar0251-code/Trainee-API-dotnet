@@ -3,13 +3,13 @@ using TrainineeAPI.Models;
 
 public interface IMentorService
 {
-    Task<List<MentorDto>> GetAll();
+    Task<ServiceResult<List<MentorDto>>> GetAll();
 
-    MentorDto? GetById(int id);
+    ServiceResult<MentorDto> GetById(int id);
 
-    MentorDto Create(CreateMentorDto dto);
+    ServiceResult<MentorDto> Create(CreateMentorDto dto);
 
-    Task<MentorDto?> Update(int id, UpdateMentorDto dto);
+    Task<ServiceResult<MentorDto>> Update(int id, UpdateMentorDto dto);
 
-    Task<bool> Delete(int id);
+    Task<ServiceResult<bool>> Delete(int id);
 }

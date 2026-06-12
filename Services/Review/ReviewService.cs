@@ -15,7 +15,7 @@ public class ReviewService : IReviewService
         _mapper = mapper;
     }
 
-    public async Task<ReviewDto?> Create(CreateReviewDto request)
+    public async Task<ServiceResult<ReviewDto>> Create(CreateReviewDto request)
     {
         // validate submissionId,mentorId check if exist
         Submission submission = _traineeContext.Submissions.FirstOrDefault(s => s.Id == request.SubmissionId)!;
@@ -24,7 +24,7 @@ public class ReviewService : IReviewService
         if (submission == null || mentor == null)
         {
             Console.WriteLine("Submission Doc or Mentor Doc doesnt exist");
-            return null;
+            return ServiceResult<ReviewDto>.Fail("Submission Doc or Mentor Doc doesnt exist");
         }
 
         var Id = _traineeContext.Reviews.Count() == 0 ? 1 : _traineeContext.Reviews.Max(r => r.Id + 1);
@@ -46,10 +46,10 @@ public class ReviewService : IReviewService
         await _traineeContext.SaveChangesAsync();
 
         ReviewDto reviewDto = _mapper.Map<ReviewDto>(review);
-        return reviewDto;
+        return ServiceResult<ReviewDto>.Ok(reviewDto);
     }
 
-    public async Task<List<ReviewDto>> GetAll()
+    public async Task<ServiceResult<List<ReviewDto>>> GetAll()
     {
         var reviews = await _traineeContext.Reviews.ToListAsync();
 
@@ -57,20 +57,20 @@ public class ReviewService : IReviewService
             .Select(r => _mapper.Map<ReviewDto>(r))
             .ToList();
 
-        return reviewDtos;
+        return ServiceResult<List<ReviewDto>>.Ok(reviewDtos);
     }
 
-    public ReviewDto? GetById(int id)
+    public ServiceResult<ReviewDto> GetById(int id)
     {
         var reviewById = _traineeContext.Reviews.FirstOrDefault(r => r.Id == id);
 
         if (reviewById == null)
         {
-            return null;
+            return ServiceResult<ReviewDto>.Fail("Document not found");
         }
 
         ReviewDto reviewDtos = _mapper.Map<ReviewDto>(reviewById);
 
-        return reviewDtos;
+        return ServiceResult<ReviewDto>.Ok(reviewDtos);
     }
 }

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
@@ -15,7 +16,7 @@ public class TaskAssignmentService : ITaskAssignmentService
         _mapper = mapper;
     }
 
-    async Task<TaskAssignmentDto?> ITaskAssignmentService.Create(CreateTaskAssignmentDto body)
+    async Task<ServiceResult<TaskAssignmentDto>> ITaskAssignmentService.Create(CreateTaskAssignmentDto body)
     {
         // validate traineeId,MentorId,LearningTaskId are in DB
         Trainee trainee = _traineeContext.Trainees.FirstOrDefault(i => i.Id == body.TraineeId)!;
@@ -28,14 +29,14 @@ public class TaskAssignmentService : ITaskAssignmentService
         if (trainee == null || learningTask == null || mentor == null)
         {
             Console.WriteLine("Error in Validate ids");
-            return null;
+            return ServiceResult<TaskAssignmentDto>.Fail("Document not found");
         }
 
         // compare due date and assignment date
         if (body.DueDate < body.AssignedDate)
         {
             Console.WriteLine("Error in Due Date <");
-            return null;
+            return ServiceResult<TaskAssignmentDto>.Fail("Due Date Should be greater than Assigned Date");
         }
 
         var id = _traineeContext.TaskAssignments.Count() == 0 ? 1 : _traineeContext.TaskAssignments.Max(t => t.Id) + 1;
@@ -58,10 +59,10 @@ public class TaskAssignmentService : ITaskAssignmentService
         _traineeContext.TaskAssignments.Add(taskAssignment);
         await _traineeContext.SaveChangesAsync();
 
-        return taskAssignmentDto;
+        return ServiceResult<TaskAssignmentDto>.Ok(taskAssignmentDto);
     }
 
-    async Task<List<TaskAssignmentDto>> ITaskAssignmentService.GetAll()
+    async Task<ServiceResult<List<TaskAssignmentDto>>> ITaskAssignmentService.GetAll()
     {
         var taskAssignments = await _traineeContext.TaskAssignments.ToListAsync();
 
@@ -69,30 +70,30 @@ public class TaskAssignmentService : ITaskAssignmentService
             .Select(t => _mapper.Map<TaskAssignmentDto>(t))
             .ToList();
 
-        return taskAssignmentDtos;
+        return ServiceResult<List<TaskAssignmentDto>>.Ok(taskAssignmentDtos);
     }
 
-    TaskAssignmentDto? ITaskAssignmentService.GetById(int id)
+    ServiceResult<TaskAssignmentDto> ITaskAssignmentService.GetById(int id)
     {
         var taskAssignmentById = _traineeContext.TaskAssignments.FirstOrDefault(t => t.Id == id);
 
         if (taskAssignmentById == null)
         {
-            return null;
+            return ServiceResult<TaskAssignmentDto>.Fail("Document not found");
         }
 
         TaskAssignmentDto taskAssignmentDto = _mapper.Map<TaskAssignmentDto>(taskAssignmentById);
 
-        return taskAssignmentDto;
+        return ServiceResult<TaskAssignmentDto>.Ok(taskAssignmentDto);
     }
 
-    async Task<TaskAssignmentDto?> ITaskAssignmentService.Update(int id, UpdateTaskAssignmentDto updatedDetails)
+    async Task<ServiceResult<TaskAssignmentDto>> ITaskAssignmentService.Update(int id, UpdateTaskAssignmentDto updatedDetails)
     {
         TaskAssignment taskAssignment = _traineeContext.TaskAssignments.FirstOrDefault(t => t.Id == id)!;
 
         if (taskAssignment == null)
         {
-            return null;
+            return ServiceResult<TaskAssignmentDto>.Fail("Document not found");
         }
 
         taskAssignment.TraineeId = updatedDetails.TraineeId;
@@ -108,6 +109,6 @@ public class TaskAssignmentService : ITaskAssignmentService
 
         var response = _mapper.Map<TaskAssignmentDto>(taskAssignment);
 
-        return response;
+        return ServiceResult<TaskAssignmentDto>.Ok(response);
     }
 }

@@ -65,7 +65,7 @@ public class ReviewController : ControllerBase
         try
         {
             Console.WriteLine("Review Creation Started");
-            ReviewDto? result = await _reviewService.Create(review);
+            ServiceResult<ReviewDto> result = await _reviewService.Create(review);
             if (result == null)
             {
                 return Ok(new
@@ -74,7 +74,7 @@ public class ReviewController : ControllerBase
                 });
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return result;
+            return Ok(result);
         }
         catch (System.Exception)
         {

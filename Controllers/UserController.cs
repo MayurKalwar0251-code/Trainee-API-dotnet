@@ -32,23 +32,16 @@ public class UserController : ControllerBase
     [HttpPost("/login")]
     public IActionResult SignIn(LoginUserDto userBody)
     {
-        var user = _userService.Login(userBody);
+        ServiceResult<object> user = _userService.Login(userBody);
 
-        if (user == null)
+        if (!user.Success)
         {
             _logger.LogError(ErrorConstants.InvalidCredentials);
-            return NotFound(new
-            {
-                ErrorConstants.InvalidCredentials
-            });
+            return NotFound(user);
         }
 
         _logger.LogInformation(MessagesConstants.LoginSuccessfully);
 
-        return Ok(new
-        {
-            user,
-            message = MessagesConstants.LoginSuccessfully
-        });
+        return Ok(user);
     }
 }
