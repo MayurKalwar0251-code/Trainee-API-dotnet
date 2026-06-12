@@ -12,5 +12,6 @@ public class MappingProfile : Profile
         CreateMap<Mentor, MentorDto>().ReverseMap();
         CreateMap<LearningTask, LearningTaskDto>().ReverseMap();
         CreateMap<TaskAssignment, TaskAssignmentDto>().ReverseMap();
+        CreateMap<Submission, SubmissionDto>().ReverseMap();
     }
 }
