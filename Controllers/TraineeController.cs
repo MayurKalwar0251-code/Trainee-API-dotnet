@@ -12,7 +12,7 @@ public class TraineeController : ControllerBase
 
     private readonly ILogger<TraineeController> _logger;
     private readonly ITraineeService _traineeService;
-    public TraineeController(ILogger<TraineeController> logger,ITraineeService traineeService)
+    public TraineeController(ILogger<TraineeController> logger, ITraineeService traineeService)
     {
         _logger = logger;
         _traineeService = traineeService;
@@ -53,7 +53,7 @@ public class TraineeController : ControllerBase
 
             if (!traineeById.Success)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound(traineeById);
             }
 
@@ -90,11 +90,11 @@ public class TraineeController : ControllerBase
     {
         try
         {
-            var updateTraine = await _traineeService.Update(id,updatedDetails);
+            var updateTraine = await _traineeService.Update(id, updatedDetails);
 
             if (!updateTraine.Success)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound(updateTraine);
             }
             _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
@@ -117,7 +117,7 @@ public class TraineeController : ControllerBase
 
             if (!deleteStatus.Success)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound(deleteStatus);
             }
 

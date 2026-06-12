@@ -13,7 +13,7 @@ public class SubmissionController : ControllerBase
 {
     private readonly ILogger<SubmissionController> _logger;
     private readonly ISubmissionService _submissionService;
-    public SubmissionController(ILogger<SubmissionController> logger,ISubmissionService submissionService)
+    public SubmissionController(ILogger<SubmissionController> logger, ISubmissionService submissionService)
     {
         _logger = logger;
         _submissionService = submissionService;
@@ -45,7 +45,7 @@ public class SubmissionController : ControllerBase
 
             if (submissionById == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 
@@ -70,7 +70,7 @@ public class SubmissionController : ControllerBase
             {
                 return Ok(new
                 {
-                   Message = "Task assignment id not found" 
+                    Message = "Task assignment id not found"
                 });
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);

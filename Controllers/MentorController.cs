@@ -12,7 +12,7 @@ public class MentorController : ControllerBase
 {
     private readonly ILogger<MentorController> _logger;
     private readonly IMentorService _mentorService;
-    public MentorController(ILogger<MentorController> logger,IMentorService mentorService)
+    public MentorController(ILogger<MentorController> logger, IMentorService mentorService)
     {
         _logger = logger;
         _mentorService = mentorService;
@@ -44,7 +44,7 @@ public class MentorController : ControllerBase
 
             if (mentorById == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 
@@ -81,11 +81,11 @@ public class MentorController : ControllerBase
     {
         try
         {
-            var updateMentor = await _mentorService.Update(id,updatedDetails);
+            var updateMentor = await _mentorService.Update(id, updatedDetails);
 
             if (updateMentor == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
             _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
@@ -108,7 +108,7 @@ public class MentorController : ControllerBase
 
             if (!deleteStatus.Data)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 

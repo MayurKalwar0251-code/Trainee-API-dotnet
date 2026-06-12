@@ -9,7 +9,7 @@ public class LearningTaskService : ILearningTaskService
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
 
-    public LearningTaskService(TraineeContext traineeContext,IMapper mapper)
+    public LearningTaskService(TraineeContext traineeContext, IMapper mapper)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
@@ -46,7 +46,7 @@ public class LearningTaskService : ILearningTaskService
 
         if (learningTask == null)
         {
-            return ServiceResult<bool>.Fail("Document not found");
+            return ServiceResult<bool>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         _traineeContext.LearningTasks.Remove(learningTask);
@@ -73,7 +73,7 @@ public class LearningTaskService : ILearningTaskService
 
         if (mentorById == null)
         {
-            return ServiceResult<LearningTaskDto>.Fail("Document not found");
+            return ServiceResult<LearningTaskDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         LearningTaskDto learningTask = _mapper.Map<LearningTaskDto>(mentorById);
@@ -87,7 +87,7 @@ public class LearningTaskService : ILearningTaskService
 
         if (learningTask == null)
         {
-            return ServiceResult<LearningTaskDto>.Fail("Document not found");
+            return ServiceResult<LearningTaskDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         learningTask.Title = updatedDetails.Title!;

@@ -29,7 +29,7 @@ public class TaskAssignmentService : ITaskAssignmentService
         if (trainee == null || learningTask == null || mentor == null)
         {
             Console.WriteLine("Error in Validate ids");
-            return ServiceResult<TaskAssignmentDto>.Fail("Document not found");
+            return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         // compare due date and assignment date
@@ -79,7 +79,7 @@ public class TaskAssignmentService : ITaskAssignmentService
 
         if (taskAssignmentById == null)
         {
-            return ServiceResult<TaskAssignmentDto>.Fail("Document not found");
+            return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         TaskAssignmentDto taskAssignmentDto = _mapper.Map<TaskAssignmentDto>(taskAssignmentById);
@@ -93,7 +93,7 @@ public class TaskAssignmentService : ITaskAssignmentService
 
         if (taskAssignment == null)
         {
-            return ServiceResult<TaskAssignmentDto>.Fail("Document not found");
+            return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         taskAssignment.TraineeId = updatedDetails.TraineeId;

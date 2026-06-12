@@ -19,7 +19,6 @@ public class TraineeService : ITraineeService
 
         var traineeDtos = trainees
             .Select(t => _mapper.Map<TraineeDto>(t))
-            // .Select(t => ConvertToTraineeDTOResponse(t))
             .ToList();
 
         return ServiceResult<List<TraineeDto>>.Ok(traineeDtos);
@@ -31,7 +30,7 @@ public class TraineeService : ITraineeService
 
         if (traineeById == null)
         {
-            return ServiceResult<TraineeDto>.Fail("Document not found");
+            return ServiceResult<TraineeDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         TraineeDto traineeDto = _mapper.Map<TraineeDto>(traineeById);
@@ -79,7 +78,7 @@ public class TraineeService : ITraineeService
 
         if (trainee == null)
         {
-            return ServiceResult<bool>.Fail("Document not found");
+            return ServiceResult<bool>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         _traineeContext.Trainees.Remove(trainee);
@@ -95,7 +94,7 @@ public class TraineeService : ITraineeService
 
         if (trainee == null)
         {
-            return ServiceResult<TraineeDto>.Fail("Document not found");
+            return ServiceResult<TraineeDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         trainee.FirstName = updatedDetails.FirstName!;

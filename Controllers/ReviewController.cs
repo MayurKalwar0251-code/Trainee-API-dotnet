@@ -13,7 +13,7 @@ public class ReviewController : ControllerBase
 {
     private readonly ILogger<ReviewController> _logger;
     private readonly IReviewService _reviewService;
-    public ReviewController(ILogger<ReviewController> logger,IReviewService reviewService)
+    public ReviewController(ILogger<ReviewController> logger, IReviewService reviewService)
     {
         _logger = logger;
         _reviewService = reviewService;
@@ -45,7 +45,7 @@ public class ReviewController : ControllerBase
 
             if (reviewById == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 
@@ -70,7 +70,7 @@ public class ReviewController : ControllerBase
             {
                 return Ok(new
                 {
-                   Message = "Mentor Id or Submission Id docs are not found" 
+                    Message = "Mentor Id or Submission Id docs are not found"
                 });
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);

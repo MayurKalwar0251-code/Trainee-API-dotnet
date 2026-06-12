@@ -13,7 +13,7 @@ public class LearningTaskController : ControllerBase
 {
     private readonly ILogger<LearningTaskController> _logger;
     private readonly ILearningTaskService _learningTaskService;
-    public LearningTaskController(ILogger<LearningTaskController> logger,ILearningTaskService learningTaskService)
+    public LearningTaskController(ILogger<LearningTaskController> logger, ILearningTaskService learningTaskService)
     {
         _logger = logger;
         _learningTaskService = learningTaskService;
@@ -45,7 +45,7 @@ public class LearningTaskController : ControllerBase
 
             if (learningTaskById == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 
@@ -82,11 +82,11 @@ public class LearningTaskController : ControllerBase
     {
         try
         {
-            var updateLearningTask = await _learningTaskService.Update(id,updatedDetails);
+            var updateLearningTask = await _learningTaskService.Update(id, updatedDetails);
 
             if (updateLearningTask == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
             _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
@@ -109,7 +109,7 @@ public class LearningTaskController : ControllerBase
 
             if (!deleteStatus.Data)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 

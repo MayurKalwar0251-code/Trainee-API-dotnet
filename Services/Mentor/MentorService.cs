@@ -8,7 +8,7 @@ public class MentorService : IMentorService
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
 
-    public MentorService(TraineeContext traineeContext,IMapper mapper)
+    public MentorService(TraineeContext traineeContext, IMapper mapper)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
@@ -45,7 +45,7 @@ public class MentorService : IMentorService
 
         if (mentor == null)
         {
-            return ServiceResult<bool>.Fail("Document not found");
+            return ServiceResult<bool>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         _traineeContext.Mentors.Remove(mentor);
@@ -72,7 +72,7 @@ public class MentorService : IMentorService
 
         if (mentorById == null)
         {
-            return ServiceResult<MentorDto>.Fail("Document not found");
+            return ServiceResult<MentorDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         MentorDto mentor = _mapper.Map<MentorDto>(mentorById);
@@ -86,7 +86,7 @@ public class MentorService : IMentorService
 
         if (mentor == null)
         {
-            return ServiceResult<MentorDto>.Fail("Document not found");
+            return ServiceResult<MentorDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         mentor.FirstName = updatedDetails.FirstName!;

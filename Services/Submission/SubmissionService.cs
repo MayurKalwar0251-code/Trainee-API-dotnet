@@ -9,7 +9,7 @@ public class SubmissionService : ISubmissionService
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
 
-    public SubmissionService(TraineeContext traineeContext,IMapper mapper)
+    public SubmissionService(TraineeContext traineeContext, IMapper mapper)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
@@ -65,8 +65,8 @@ public class SubmissionService : ISubmissionService
         var submissionById = _traineeContext.Submissions.FirstOrDefault(t => t.Id == id);
 
         if (submissionById == null)
-        {     
-            return ServiceResult<SubmissionDto>.Fail("Document not found");
+        {
+            return ServiceResult<SubmissionDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         SubmissionDto submissionDtos = _mapper.Map<SubmissionDto>(submissionById);

@@ -9,7 +9,7 @@ public class ReviewService : IReviewService
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
 
-    public ReviewService(TraineeContext traineeContext,IMapper mapper)
+    public ReviewService(TraineeContext traineeContext, IMapper mapper)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
@@ -32,11 +32,11 @@ public class ReviewService : IReviewService
         Review review = new Review
         {
             Id = Id,
-            SubmissionId = request.SubmissionId,   
-            MentorId = request.MentorId,   
-            Feedback = request.Feedback,   
-            Score = request.Score,   
-            ReviewStatus = request.ReviewStatus,   
+            SubmissionId = request.SubmissionId,
+            MentorId = request.MentorId,
+            Feedback = request.Feedback,
+            Score = request.Score,
+            ReviewStatus = request.ReviewStatus,
             ReviewedDate = DateOnly.FromDateTime(DateTime.Now),
             CreatedDate = DateOnly.FromDateTime(DateTime.Now),
             UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
@@ -66,7 +66,7 @@ public class ReviewService : IReviewService
 
         if (reviewById == null)
         {
-            return ServiceResult<ReviewDto>.Fail("Document not found");
+            return ServiceResult<ReviewDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         ReviewDto reviewDtos = _mapper.Map<ReviewDto>(reviewById);

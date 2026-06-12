@@ -13,7 +13,7 @@ public class TaskAssignmentController : ControllerBase
 {
     private readonly ILogger<TaskAssignmentController> _logger;
     private readonly ITaskAssignmentService _taskAssignmentService;
-    public TaskAssignmentController(ILogger<TaskAssignmentController> logger,ITaskAssignmentService taskAssignmentService)
+    public TaskAssignmentController(ILogger<TaskAssignmentController> logger, ITaskAssignmentService taskAssignmentService)
     {
         _logger = logger;
         _taskAssignmentService = taskAssignmentService;
@@ -45,7 +45,7 @@ public class TaskAssignmentController : ControllerBase
 
             if (taskAssignmentById == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
 
@@ -69,10 +69,10 @@ public class TaskAssignmentController : ControllerBase
             if (result == null)
             {
                 return Ok(new
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = ErrorConstants.InternalServerError
-            });
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = ErrorConstants.InternalServerError
+                });
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
             return Ok(result);
@@ -90,11 +90,11 @@ public class TaskAssignmentController : ControllerBase
     {
         try
         {
-            ServiceResult<TaskAssignmentDto> updateTaskAssignment = await _taskAssignmentService.Update(id,updatedDetails);
+            ServiceResult<TaskAssignmentDto> updateTaskAssignment = await _taskAssignmentService.Update(id, updatedDetails);
 
             if (updateTaskAssignment == null)
             {
-                _logger.LogError(ErrorConstants.UserNotFound);
+                _logger.LogError(ErrorConstants.DocumentNotFound);
                 return NotFound();
             }
             _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
