@@ -37,6 +37,7 @@ builder.Services.AddScoped<IMentorService,MentorService>();
 builder.Services.AddScoped<ILearningTaskService,LearningTaskService>();
 builder.Services.AddScoped<ITaskAssignmentService,TaskAssignmentService>();
 builder.Services.AddScoped<ISubmissionService,SubmissionService>();
+builder.Services.AddScoped<IReviewService,ReviewService>();
 
 // 1. Retrieve the connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
