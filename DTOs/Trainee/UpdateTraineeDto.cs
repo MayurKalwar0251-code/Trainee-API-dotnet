@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TrainineeAPI.Models;
 
 namespace TrainineeAPI.DTOs;
 public class UpdateTraineeDto
@@ -18,5 +19,7 @@ public class UpdateTraineeDto
     [Required]
     [EnumDataType(typeof(TechStackEnumValues),ErrorMessage = "Invalid TechStack Specified")]
     public string? TechStack { get; set; }
-    public bool Status { get; set; }
+
+    [EnumDataType(typeof(TraineeStatusEnumValues),ErrorMessage = "Invalid Status Value Specified")]
+    public string? Status { get; set; }
 }

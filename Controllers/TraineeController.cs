@@ -32,6 +32,7 @@ public class TraineeController : ControllerBase
             }
             else
             {
+                Console.WriteLine("WE are not here in filter");
                 var traineeDtos = await _traineeService.GetAll();
                 return Ok(traineeDtos);
             }

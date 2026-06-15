@@ -119,7 +119,7 @@ public class TraineeService : ITraineeService
             Console.WriteLine("COUNT SearchFIlter : " + filterResult.Count());
         }
 
-        if (filter.Status.HasValue)
+        if (!string.IsNullOrEmpty(filter.Status))
         {
             filterResult = filterResult.Where(item => item.Status == filter.Status);
 
