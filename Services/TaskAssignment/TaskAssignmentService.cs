@@ -41,19 +41,10 @@ public class TaskAssignmentService : ITaskAssignmentService
 
         var id = _traineeContext.TaskAssignments.Count() == 0 ? 1 : _traineeContext.TaskAssignments.Max(t => t.Id) + 1;
 
-        TaskAssignment taskAssignment = new TaskAssignment
-        {
-            Id = id,
-            TraineeId = body.TraineeId,
-            MentorId = body.TraineeId,
-            LearningTaskId = body.LearningTaskId,
-            Status = body.Status,
-            Remarks = body.Remarks,
-            DueDate = body.DueDate,
-            AssignedDate = body.AssignedDate,
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        TaskAssignment taskAssignment = _mapper.Map<TaskAssignment>(body);
+        taskAssignment.Id = id;
+        taskAssignment.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+        taskAssignment.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         TaskAssignmentDto taskAssignmentDto = _mapper.Map<TaskAssignmentDto>(taskAssignment);
         _traineeContext.TaskAssignments.Add(taskAssignment);
@@ -96,13 +87,7 @@ public class TaskAssignmentService : ITaskAssignmentService
             return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
-        taskAssignment.TraineeId = updatedDetails.TraineeId;
-        taskAssignment.MentorId = updatedDetails.MentorId;
-        taskAssignment.LearningTaskId = updatedDetails.LearningTaskId;
-        taskAssignment.Status = updatedDetails.Status!;
-        taskAssignment.Remarks = updatedDetails.Remarks!;
-        taskAssignment.DueDate = updatedDetails.DueDate!;
-        taskAssignment.AssignedDate = updatedDetails.AssignedDate!;
+        _mapper.Map(updatedDetails,taskAssignment);
         taskAssignment.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         await _traineeContext.SaveChangesAsync();

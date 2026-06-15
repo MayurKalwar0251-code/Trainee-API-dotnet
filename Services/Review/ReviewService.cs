@@ -24,23 +24,16 @@ public class ReviewService : IReviewService
         if (submission == null || mentor == null)
         {
             Console.WriteLine("Submission Doc or Mentor Doc doesnt exist");
-            return ServiceResult<ReviewDto>.Fail("Submission Doc or Mentor Doc doesnt exist");
+            return ServiceResult<ReviewDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
         var Id = _traineeContext.Reviews.Count() == 0 ? 1 : _traineeContext.Reviews.Max(r => r.Id + 1);
 
-        Review review = new Review
-        {
-            Id = Id,
-            SubmissionId = request.SubmissionId,
-            MentorId = request.MentorId,
-            Feedback = request.Feedback,
-            Score = request.Score,
-            ReviewStatus = request.ReviewStatus,
-            ReviewedDate = DateOnly.FromDateTime(DateTime.Now),
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        Review review = _mapper.Map<Review>(request);
+        review.Id = Id;
+        review.ReviewedDate = DateOnly.FromDateTime(DateTime.Now);
+        review.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+        review.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         _traineeContext.Reviews.Add(review);
         await _traineeContext.SaveChangesAsync();

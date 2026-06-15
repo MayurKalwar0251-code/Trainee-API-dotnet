@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 
+// TODO user automapper
+
 public class LearningTaskService : ILearningTaskService
 {
     private readonly TraineeContext _traineeContext;
@@ -19,17 +21,10 @@ public class LearningTaskService : ILearningTaskService
     {
         var id = _traineeContext.LearningTasks.Count() == 0 ? 1 : _traineeContext.LearningTasks.Max(t => t.Id) + 1;
 
-        LearningTask newLearningTask = new LearningTask
-        {
-            Id = id,
-            Title = learningTask.Title!,
-            Description = learningTask.Description!,
-            ExpectedTechStack = learningTask.ExpectedTechStack!,
-            DueDate = learningTask.DueDate,
-            Status = learningTask.Status,
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        LearningTask newLearningTask = _mapper.Map<LearningTask>(learningTask);
+        newLearningTask.Id = id;
+        newLearningTask.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+        newLearningTask.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         LearningTaskDto learningTaskDto = _mapper.Map<LearningTaskDto>(newLearningTask);
 
@@ -90,11 +85,7 @@ public class LearningTaskService : ILearningTaskService
             return ServiceResult<LearningTaskDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
-        learningTask.Title = updatedDetails.Title!;
-        learningTask.Description = updatedDetails.Description!;
-        learningTask.ExpectedTechStack = updatedDetails.ExpectedTechStack!;
-        learningTask.Status = updatedDetails.Status!;
-        learningTask.DueDate = updatedDetails.DueDate!;
+        _mapper.Map(updatedDetails,learningTask);
         learningTask.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         await _traineeContext.SaveChangesAsync();

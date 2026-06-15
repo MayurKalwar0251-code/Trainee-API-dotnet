@@ -21,7 +21,7 @@ public class LearningTaskController : ControllerBase
 
     [Authorize]
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<LearningTaskDto>>> GetAllLearningTask([FromQuery] FilterTraineeDto filter)
+    public async Task<ActionResult<IEnumerable<LearningTaskDto>>> GetAllLearningTask()
     {
         try
         {

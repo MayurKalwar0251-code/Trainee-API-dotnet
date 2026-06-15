@@ -20,7 +20,7 @@ public class MentorController : ControllerBase
 
     [Authorize]
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<MentorDto>>> GetAllMentor([FromQuery] FilterTraineeDto filter)
+    public async Task<ActionResult<IEnumerable<MentorDto>>> GetAllMentor()
     {
         try
         {

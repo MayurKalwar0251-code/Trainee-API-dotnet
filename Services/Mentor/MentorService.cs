@@ -18,17 +18,10 @@ public class MentorService : IMentorService
     {
         var id = _traineeContext.Mentors.Count() == 0 ? 1 : _traineeContext.Mentors.Max(t => t.Id) + 1;
 
-        Mentor newMentor = new Mentor
-        {
-            Id = id,
-            FirstName = mentor.FirstName!,
-            LastName = mentor.LastName!,
-            Email = mentor.Email!,
-            Expertise = mentor.Expertise,
-            Status = mentor.Status,
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        Mentor newMentor = _mapper.Map<Mentor>(mentor);
+        newMentor.Id = id;
+        newMentor.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+        newMentor.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         MentorDto mentorDto = _mapper.Map<MentorDto>(newMentor);
 
@@ -89,11 +82,8 @@ public class MentorService : IMentorService
             return ServiceResult<MentorDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
-        mentor.FirstName = updatedDetails.FirstName!;
-        mentor.LastName = updatedDetails.LastName!;
-        mentor.Email = updatedDetails.Email!;
-        mentor.Status = updatedDetails.Status!;
-        mentor.Expertise = updatedDetails.Expertise!;
+        _mapper.Map(updatedDetails, mentor);
+
         mentor.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         await _traineeContext.SaveChangesAsync();

@@ -21,7 +21,7 @@ public class SubmissionController : ControllerBase
 
     [Authorize]
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<SubmissionDto>>> GetAllSubmission([FromQuery] FilterTraineeDto filter)
+    public async Task<ActionResult<IEnumerable<SubmissionDto>>> GetAllSubmission()
     {
         try
         {

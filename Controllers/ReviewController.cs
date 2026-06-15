@@ -21,7 +21,7 @@ public class ReviewController : ControllerBase
 
     [Authorize]
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReview([FromQuery] FilterTraineeDto filter)
+    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReview()
     {
         try
         {

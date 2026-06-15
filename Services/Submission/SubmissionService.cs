@@ -25,20 +25,14 @@ public class SubmissionService : ISubmissionService
         if (taskAssignment == null)
         {
             Console.WriteLine("Task Assignment doc not found");
-            return ServiceResult<SubmissionDto>.Fail("Task Assignment Doc doesnt exist");
+            return ServiceResult<SubmissionDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
-        Submission submission = new Submission
-        {
-            Id = id,
-            TaskAssignmentId = request.TaskAssignmentId,
-            SubmissionUrl = request.SubmissionUrl,
-            Notes = request.Notes!,
-            Status = request.Status!,
-            SubmittedDate = DateOnly.FromDateTime(DateTime.Now),
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        Submission submission = _mapper.Map<Submission>(request);
+        submission.Id = id;
+        submission.SubmittedDate = DateOnly.FromDateTime(DateTime.Now);
+        submission.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+        submission.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         _traineeContext.Submissions.Add(submission);
         await _traineeContext.SaveChangesAsync();

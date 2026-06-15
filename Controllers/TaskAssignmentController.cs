@@ -21,7 +21,7 @@ public class TaskAssignmentController : ControllerBase
 
     [Authorize]
     [HttpGet("")]
-    public async Task<ActionResult<IEnumerable<TaskAssignmentDto>>> GetAllTaskAssignment([FromQuery] FilterTraineeDto filter)
+    public async Task<ActionResult<IEnumerable<TaskAssignmentDto>>> GetAllTaskAssignment()
     {
         try
         {

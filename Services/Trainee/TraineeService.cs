@@ -42,28 +42,12 @@ public class TraineeService : ITraineeService
     {
         var id = _traineeContext.Trainees.Count() == 0 ? 1 : _traineeContext.Trainees.Max(t => t.Id) + 1;
 
-        var traineeDto = new TraineeDto
-        {
-            FirstName = trainee.FirstName,
-            LastName = trainee.LastName,
-            Email = trainee.Email,
-            Status = trainee.Status,
-            TechStack = trainee.TechStack,
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        Trainee newTrainee = _mapper.Map<Trainee>(trainee);
+        newTrainee.Id = id;
+        newTrainee.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+        newTrainee.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
-        Trainee newTrainee = new Trainee
-        {
-            Id = id,
-            FirstName = trainee.FirstName!,
-            LastName = trainee.LastName!,
-            Email = trainee.Email!,
-            Status = trainee.Status,
-            TechStack = trainee.TechStack!,
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
-        };
+        TraineeDto traineeDto = _mapper.Map<TraineeDto>(newTrainee);
 
         _traineeContext.Trainees.Add(newTrainee);
 
@@ -97,11 +81,8 @@ public class TraineeService : ITraineeService
             return ServiceResult<TraineeDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
-        trainee.FirstName = updatedDetails.FirstName!;
-        trainee.LastName = updatedDetails.LastName!;
-        trainee.Email = updatedDetails.Email!;
-        trainee.Status = updatedDetails.Status;
-        trainee.TechStack = updatedDetails.TechStack!;
+        _mapper.Map(updatedDetails,trainee);
+        trainee.Id = id;
         trainee.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         await _traineeContext.SaveChangesAsync();
@@ -125,12 +106,6 @@ public class TraineeService : ITraineeService
     }
     public async Task<ServiceResult<List<TraineeDto>>> FilterByQuery(FilterTraineeDto filter)
     {
-        Console.WriteLine("FILTER PARAM : " + filter);
-        Console.WriteLine("FILTER PARAM Search : " + filter.Search);
-        Console.WriteLine("FILTER PARAM NO: " + filter.PageNumber);
-        Console.WriteLine("FILTER PARAM Size: " + filter.PageSize);
-        Console.WriteLine("FILTER PARAM Status: " + filter.Status);
-
         IQueryable<Trainee> filterResult = _traineeContext.Trainees;
 
         if (!string.IsNullOrWhiteSpace(filter.Search))
