@@ -87,6 +87,20 @@ public class TaskAssignmentService : ITaskAssignmentService
             return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
+        // validate traineeId,MentorId,LearningTaskId are in DB
+        Trainee trainee = _traineeContext.Trainees.FirstOrDefault(i => i.Id == updatedDetails.TraineeId)!;
+        LearningTask learningTask = _traineeContext.LearningTasks.FirstOrDefault(i => i.Id == updatedDetails.LearningTaskId)!;
+        Mentor mentor = _traineeContext.Mentors.FirstOrDefault(i => i.Id == updatedDetails.MentorId)!;
+
+        Console.WriteLine(trainee == null);
+        Console.WriteLine(learningTask == null);
+        Console.WriteLine(mentor == null);
+        if (trainee == null || learningTask == null || mentor == null)
+        {
+            Console.WriteLine("Error in Validate ids");
+            return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
+        }
+
         _mapper.Map(updatedDetails,taskAssignment);
         taskAssignment.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 

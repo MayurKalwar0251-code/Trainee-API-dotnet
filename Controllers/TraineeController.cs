@@ -22,25 +22,17 @@ public class TraineeController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TraineeDto>>> GetAllTrainee([FromQuery] FilterTraineeDto filter)
     {
-        try
+        if (UtilityFunctions.CheckHasFilterQuery(filter))
         {
-            if (UtilityFunctions.CheckHasFilterQuery(filter))
-            {
-                Console.WriteLine("WE are here in filter");
-                var filterResult = await _traineeService.FilterByQuery(filter);
-                return Ok(filterResult);
-            }
-            else
-            {
-                Console.WriteLine("WE are not here in filter");
-                var traineeDtos = await _traineeService.GetAll();
-                return Ok(traineeDtos);
-            }
+            Console.WriteLine("WE are here in filter");
+            var filterResult = await _traineeService.FilterByQuery(filter);
+            return Ok(filterResult);
         }
-        catch (System.Exception)
+        else
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            Console.WriteLine("WE are not here in filter");
+            var traineeDtos = await _traineeService.GetAll();
+            return Ok(traineeDtos);
         }
     }
 
@@ -48,93 +40,60 @@ public class TraineeController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<TraineeDto> GetTraineeById(int id)
     {
-        try
-        {
-            var traineeById = _traineeService.GetById(id);
+        var traineeById = _traineeService.GetById(id);
 
-            if (!traineeById.Success)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(traineeById);
-            }
-
-            return Ok(traineeById);
-        }
-        catch (System.Exception)
+        if (!traineeById.Success)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(traineeById);
         }
+        return Ok(traineeById);
     }
 
     [Authorize]
     [HttpPost]
     public ActionResult<TraineeDto> CreateTrainee(CreateTraineeDto trainee)
     {
-        try
-        {
-            Console.WriteLine("Trainee Creation Started");
-            var result = _traineeService.Create(trainee);
-            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return Ok(result);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        Console.WriteLine("Trainee Creation Started");
+        var result = _traineeService.Create(trainee);
+        _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+        return Ok(result);
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<TraineeDto>> UpdateTrainee(int id, UpdateTraineeDto updatedDetails)
     {
-        try
-        {
-            var updateTraine = await _traineeService.Update(id, updatedDetails);
+        var updateTraine = await _traineeService.Update(id, updatedDetails);
 
-            if (!updateTraine.Success)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(updateTraine);
-            }
-            _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
-            return Ok(updateTraine);
-        }
-        catch (System.Exception)
+        if (!updateTraine.Success)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(updateTraine);
         }
+        _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
+        return Ok(updateTraine);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTrainee(int id)
     {
-        try
+        var deleteStatus = await _traineeService.Delete(id);
+
+        if (!deleteStatus.Success)
         {
-            var deleteStatus = await _traineeService.Delete(id);
-
-            if (!deleteStatus.Success)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(deleteStatus);
-            }
-
-            _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
-
-            return Ok(new
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = MessagesConstants.DeletedSuccessfully
-            });
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(deleteStatus);
         }
-        catch (System.Exception)
+
+        _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
+
+        return Ok(new
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+            StatusCode = StatusCodes.Status200OK,
+            Message = MessagesConstants.DeletedSuccessfully
+        });
     }
 
 }

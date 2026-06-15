@@ -22,109 +22,69 @@ public class MentorController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<MentorDto>>> GetAllMentor()
     {
-        try
-        {
-            var mentors = await _mentorService.GetAll();
-            return Ok(mentors);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        var mentors = await _mentorService.GetAll();
+        return Ok(mentors);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public ActionResult<MentorDto> GetMentorById(int id)
     {
-        try
-        {
-            var mentorById = _mentorService.GetById(id);
+        var mentorById = _mentorService.GetById(id);
 
-            if (mentorById == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
-            }
-
-            return Ok(mentorById);
-        }
-        catch (System.Exception)
+        if (mentorById == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound();
         }
+
+        return Ok(mentorById);
     }
 
     [Authorize]
     [HttpPost]
     public ActionResult<MentorDto> CreateMentor(CreateMentorDto mentor)
     {
-        try
-        {
-            Console.WriteLine("Mentor Creation Started");
-            var result = _mentorService.Create(mentor);
-            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return Ok(result);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        Console.WriteLine("Mentor Creation Started");
+        var result = _mentorService.Create(mentor);
+        _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+        return Ok(result);
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<MentorDto>> UpdateMentor(int id, UpdateMentorDto updatedDetails)
     {
-        try
-        {
-            var updateMentor = await _mentorService.Update(id, updatedDetails);
+        var updateMentor = await _mentorService.Update(id, updatedDetails);
 
-            if (updateMentor == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
-            }
-            _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
-            return Ok(updateMentor);
-        }
-        catch (System.Exception)
+        if (updateMentor == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound();
         }
+        _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
+        return Ok(updateMentor);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMentor(int id)
     {
-        try
+        var deleteStatus = await _mentorService.Delete(id);
+
+        if (!deleteStatus.Data)
         {
-            var deleteStatus = await _mentorService.Delete(id);
-
-            if (!deleteStatus.Data)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
-            }
-
-            _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
-
-            return Ok(new
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = MessagesConstants.DeletedSuccessfully
-            });
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound();
         }
-        catch (System.Exception)
+
+        _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
+
+        return Ok(new
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+            StatusCode = StatusCodes.Status200OK,
+            Message = MessagesConstants.DeletedSuccessfully
+        });
     }
 
 }

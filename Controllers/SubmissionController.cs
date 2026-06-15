@@ -23,61 +23,37 @@ public class SubmissionController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<SubmissionDto>>> GetAllSubmission()
     {
-        try
-        {
-            var submissions = await _submissionService.GetAll();
-            return Ok(submissions);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        var submissions = await _submissionService.GetAll();
+        return Ok(submissions);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public ActionResult<SubmissionDto> GetSubmissionById(int id)
     {
-        try
-        {
-            ServiceResult<SubmissionDto> submissionById = _submissionService.GetById(id);
+        ServiceResult<SubmissionDto> submissionById = _submissionService.GetById(id);
 
-            if (submissionById.Data == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(submissionById);
-            }
-
-            return Ok(submissionById);
-        }
-        catch (System.Exception)
+        if (submissionById.Data == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(submissionById);
         }
+
+        return Ok(submissionById);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<SubmissionDto>> CreateSubmission(CreateSubmissionDto submission)
     {
-        try
+        Console.WriteLine("Submission Creation Started");
+        ServiceResult<SubmissionDto> result = await _submissionService.Create(submission);
+        if (result.Data == null)
         {
-            Console.WriteLine("Submission Creation Started");
-            ServiceResult<SubmissionDto> result = await _submissionService.Create(submission);
-            if (result.Data == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(result);
-            }
-            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return Ok(result);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(result);
         }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+        return Ok(result);
     }
 }

@@ -27,6 +27,13 @@ builder.Services.AddAutoMapper(cfg =>
 });
 
 builder.Services.AddControllers();
+
+// 2. Register your custom exception handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// 3. Register the standard Problem Details service
+builder.Services.AddProblemDetails();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -62,6 +69,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 public static class ErrorConstants
 {
     public const string InternalServerError = "Internal Server Error Occured";
+    public const string UnexpectedServerError = "An unexpected error occurred. Please try again later";
     public const string InvalidCredentials = "Invalid Credentials or User Not Found";
     public const string DocumentNotFound = "Document Not Found";
     public const string DueDateLesserError = "Due Date Should be greater than Assigned Date";

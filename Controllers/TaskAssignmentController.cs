@@ -23,83 +23,51 @@ public class TaskAssignmentController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<TaskAssignmentDto>>> GetAllTaskAssignment()
     {
-        try
-        {
-            var taskAssignments = await _taskAssignmentService.GetAll();
-            return Ok(taskAssignments);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        var taskAssignments = await _taskAssignmentService.GetAll();
+        return Ok(taskAssignments);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public ActionResult<TaskAssignmentDto> GetTaskAssignmentById(int id)
     {
-        try
-        {
-            ServiceResult<TaskAssignmentDto> taskAssignmentById = _taskAssignmentService.GetById(id);
+        ServiceResult<TaskAssignmentDto> taskAssignmentById = _taskAssignmentService.GetById(id);
 
-            if (taskAssignmentById.Data == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(taskAssignmentById);
-            }
-
-            return Ok(taskAssignmentById);
-        }
-        catch (System.Exception)
+        if (taskAssignmentById.Data == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(taskAssignmentById);
         }
+
+        return Ok(taskAssignmentById);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<TaskAssignmentDto>> CreateTaskAssignment(CreateTaskAssignmentDto taskAssignment)
     {
-        try
+        Console.WriteLine("Task Assignment Creation Started");
+        ServiceResult<TaskAssignmentDto> result = await _taskAssignmentService.Create(taskAssignment);
+        if (result.Data == null)
         {
-            Console.WriteLine("Task Assignment Creation Started");
-            ServiceResult<TaskAssignmentDto> result = await _taskAssignmentService.Create(taskAssignment);
-            if (result.Data == null)
-            {
-                return NotFound(result);
-            }
-            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return Ok(result);
+            return NotFound(result);
         }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+        return Ok(result);
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<TaskAssignmentDto>> UpdateTaskAssignment(int id, UpdateTaskAssignmentDto updatedDetails)
     {
-        try
-        {
-            ServiceResult<TaskAssignmentDto> updateTaskAssignment = await _taskAssignmentService.Update(id, updatedDetails);
+        ServiceResult<TaskAssignmentDto> updateTaskAssignment = await _taskAssignmentService.Update(id, updatedDetails);
 
-            if (updateTaskAssignment.Data == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(updateTaskAssignment);
-            }
-            _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
-            return Ok(updateTaskAssignment);
-        }
-        catch (System.Exception)
+        if (updateTaskAssignment.Data == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(updateTaskAssignment);
         }
+        _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
+        return Ok(updateTaskAssignment);
     }
 }

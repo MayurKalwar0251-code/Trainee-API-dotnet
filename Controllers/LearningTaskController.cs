@@ -23,109 +23,69 @@ public class LearningTaskController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<LearningTaskDto>>> GetAllLearningTask()
     {
-        try
-        {
-            var learningTasks = await _learningTaskService.GetAll();
-            return Ok(learningTasks);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        var learningTasks = await _learningTaskService.GetAll();
+        return Ok(learningTasks);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public ActionResult<LearningTaskDto> GetLearningTaskById(int id)
     {
-        try
-        {
-            var learningTaskById = _learningTaskService.GetById(id);
+        var learningTaskById = _learningTaskService.GetById(id);
 
-            if (learningTaskById == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
-            }
-
-            return Ok(learningTaskById);
-        }
-        catch (System.Exception)
+        if (learningTaskById == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound();
         }
+
+        return Ok(learningTaskById);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<LearningTaskDto>> CreateLearningTask(CreateLearningTaskDto learningTask)
     {
-        try
-        {
-            Console.WriteLine("Learning Task Creation Started");
-            var result = await _learningTaskService.Create(learningTask);
-            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return Ok(result);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        Console.WriteLine("Learning Task Creation Started");
+        var result = await _learningTaskService.Create(learningTask);
+        _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+        return Ok(result);
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<LearningTaskDto>> UpdateLearningTask(int id, UpdateLearningTaskDto updatedDetails)
     {
-        try
-        {
-            var updateLearningTask = await _learningTaskService.Update(id, updatedDetails);
+        var updateLearningTask = await _learningTaskService.Update(id, updatedDetails);
 
-            if (updateLearningTask == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
-            }
-            _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
-            return Ok(updateLearningTask);
-        }
-        catch (System.Exception)
+        if (updateLearningTask == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound();
         }
+        _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
+        return Ok(updateLearningTask);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteLearningTask(int id)
     {
-        try
+        var deleteStatus = await _learningTaskService.Delete(id);
+
+        if (!deleteStatus.Data)
         {
-            var deleteStatus = await _learningTaskService.Delete(id);
-
-            if (!deleteStatus.Data)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
-            }
-
-            _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
-
-            return Ok(new
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = MessagesConstants.DeletedSuccessfully
-            });
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound();
         }
-        catch (System.Exception)
+
+        _logger.LogInformation(MessagesConstants.DeletedSuccessfully);
+
+        return Ok(new
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+            StatusCode = StatusCodes.Status200OK,
+            Message = MessagesConstants.DeletedSuccessfully
+        });
     }
 
 }

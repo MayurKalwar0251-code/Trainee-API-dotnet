@@ -23,61 +23,37 @@ public class ReviewController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReview()
     {
-        try
-        {
-            var reviews = await _reviewService.GetAll();
-            return Ok(reviews);
-        }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        var reviews = await _reviewService.GetAll();
+        return Ok(reviews);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public ActionResult<ReviewDto> GetReviewById(int id)
     {
-        try
-        {
-            ServiceResult<ReviewDto> reviewById = _reviewService.GetById(id);
+        ServiceResult<ReviewDto> reviewById = _reviewService.GetById(id);
 
-            if (reviewById.Data == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(reviewById);
-            }
-
-            return Ok(reviewById);
-        }
-        catch (System.Exception)
+        if (reviewById.Data == null)
         {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(reviewById);
         }
+
+        return Ok(reviewById);
     }
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<ReviewDto>> CreateReview(CreateReviewDto review)
     {
-        try
+        Console.WriteLine("Review Creation Started");
+        ServiceResult<ReviewDto> result = await _reviewService.Create(review);
+        if (result.Data == null)
         {
-            Console.WriteLine("Review Creation Started");
-            ServiceResult<ReviewDto> result = await _reviewService.Create(review);
-            if (result.Data == null)
-            {
-                _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound(result);
-            }
-            _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
-            return Ok(result);
+            _logger.LogError(ErrorConstants.DocumentNotFound);
+            return NotFound(result);
         }
-        catch (System.Exception)
-        {
-            _logger.LogError(ErrorConstants.InternalServerError);
-            return Problem(ErrorConstants.InternalServerError);
-        }
+        _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
+        return Ok(result);
     }
 }
