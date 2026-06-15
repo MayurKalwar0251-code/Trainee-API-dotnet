@@ -41,12 +41,12 @@ public class SubmissionController : ControllerBase
     {
         try
         {
-            var submissionById = _submissionService.GetById(id);
+            ServiceResult<SubmissionDto> submissionById = _submissionService.GetById(id);
 
-            if (submissionById == null)
+            if (submissionById.Data == null)
             {
                 _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
+                return NotFound(submissionById);
             }
 
             return Ok(submissionById);
@@ -66,12 +66,10 @@ public class SubmissionController : ControllerBase
         {
             Console.WriteLine("Submission Creation Started");
             ServiceResult<SubmissionDto> result = await _submissionService.Create(submission);
-            if (result == null)
+            if (result.Data == null)
             {
-                return Ok(new
-                {
-                    Message = "Task assignment id not found"
-                });
+                _logger.LogError(ErrorConstants.DocumentNotFound);
+                return NotFound(result);
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
             return Ok(result);

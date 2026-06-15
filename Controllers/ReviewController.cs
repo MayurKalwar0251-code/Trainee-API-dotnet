@@ -41,12 +41,12 @@ public class ReviewController : ControllerBase
     {
         try
         {
-            var reviewById = _reviewService.GetById(id);
+            ServiceResult<ReviewDto> reviewById = _reviewService.GetById(id);
 
-            if (reviewById == null)
+            if (reviewById.Data == null)
             {
                 _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
+                return NotFound(reviewById);
             }
 
             return Ok(reviewById);
@@ -66,12 +66,10 @@ public class ReviewController : ControllerBase
         {
             Console.WriteLine("Review Creation Started");
             ServiceResult<ReviewDto> result = await _reviewService.Create(review);
-            if (result == null)
+            if (result.Data == null)
             {
-                return Ok(new
-                {
-                    Message = "Mentor Id or Submission Id docs are not found"
-                });
+                _logger.LogError(ErrorConstants.DocumentNotFound);
+                return NotFound(result);
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
             return Ok(result);

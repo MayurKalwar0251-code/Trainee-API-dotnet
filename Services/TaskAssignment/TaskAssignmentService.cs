@@ -36,7 +36,7 @@ public class TaskAssignmentService : ITaskAssignmentService
         if (body.DueDate < body.AssignedDate)
         {
             Console.WriteLine("Error in Due Date <");
-            return ServiceResult<TaskAssignmentDto>.Fail("Due Date Should be greater than Assigned Date");
+            return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DueDateLesserError);
         }
 
         var id = _traineeContext.TaskAssignments.Count() == 0 ? 1 : _traineeContext.TaskAssignments.Max(t => t.Id) + 1;

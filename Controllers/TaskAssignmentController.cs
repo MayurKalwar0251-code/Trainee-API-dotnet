@@ -41,12 +41,12 @@ public class TaskAssignmentController : ControllerBase
     {
         try
         {
-            var taskAssignmentById = _taskAssignmentService.GetById(id);
+            ServiceResult<TaskAssignmentDto> taskAssignmentById = _taskAssignmentService.GetById(id);
 
-            if (taskAssignmentById == null)
+            if (taskAssignmentById.Data == null)
             {
                 _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
+                return NotFound(taskAssignmentById);
             }
 
             return Ok(taskAssignmentById);
@@ -66,13 +66,9 @@ public class TaskAssignmentController : ControllerBase
         {
             Console.WriteLine("Task Assignment Creation Started");
             ServiceResult<TaskAssignmentDto> result = await _taskAssignmentService.Create(taskAssignment);
-            if (result == null)
+            if (result.Data == null)
             {
-                return Ok(new
-                {
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = ErrorConstants.InternalServerError
-                });
+                return NotFound(result);
             }
             _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
             return Ok(result);
@@ -92,10 +88,10 @@ public class TaskAssignmentController : ControllerBase
         {
             ServiceResult<TaskAssignmentDto> updateTaskAssignment = await _taskAssignmentService.Update(id, updatedDetails);
 
-            if (updateTaskAssignment == null)
+            if (updateTaskAssignment.Data == null)
             {
                 _logger.LogError(ErrorConstants.DocumentNotFound);
-                return NotFound();
+                return NotFound(updateTaskAssignment);
             }
             _logger.LogInformation(MessagesConstants.UpdatedSuccessfully);
             return Ok(updateTaskAssignment);
