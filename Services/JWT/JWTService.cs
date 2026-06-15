@@ -15,6 +15,7 @@ public class JWTService : IJWTService
     {
         var claims = new[]
         {
+            new Claim(ClaimTypes.NameIdentifier,userBody.Id.ToString()),
             new Claim(ClaimTypes.Name,userBody.Username),
             new Claim(ClaimTypes.Role,userBody.Role),
         };

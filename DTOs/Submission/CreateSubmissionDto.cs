@@ -11,5 +11,5 @@ public class CreateSubmissionDto
     public string? Notes { get; set; }
 
     [EnumDataType(typeof(SubmissionStatusEnumValues),ErrorMessage = "Invalid Submission Status Specified")]
-    public string? Status { get; set; }
+    public string Status { get; set; } = "Submitted";
 }

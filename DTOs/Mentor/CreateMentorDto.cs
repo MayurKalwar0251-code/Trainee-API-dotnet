@@ -9,7 +9,6 @@ public class CreateMentorDto
     public required string Email { get; set; }
     public required string Expertise { get; set; }
 
-    [Required]
     [EnumDataType(typeof(MentorStatusEnumValues),ErrorMessage = "Invalid Mentor Status Specified")]
-    public required string Status { get; set; }
+    public string Status { get; set; } = "Active";
 }

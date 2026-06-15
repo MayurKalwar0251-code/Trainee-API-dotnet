@@ -12,7 +12,7 @@ public class TaskAssignmentDto
     [Required]
     [EnumDataType(typeof(TaskAssignmentEnumValues),ErrorMessage = "Invalid Task Assignment Status Specified")]
     public required string Status { get; set; }
-    public required string Remarks { get; set; }
+    public string? Remarks { get; set; }
     public DateOnly AssignedDate { get; set; }
     public DateOnly DueDate { get; set; }
     public DateOnly CreatedDate { get; set; }

@@ -8,7 +8,6 @@ public class UpdateLearningTaskDto
     public string? Description { get; set; }
     public string? ExpectedTechStack { get; set; }
     
-    [Required]
     [EnumDataType(typeof(LearningTaskStatusEnumValues),ErrorMessage = "Invalid Learning Task Status Specified")]
     public string? Status { get; set; }
     public DateOnly DueDate { get; set; }

@@ -16,8 +16,6 @@ public class UpdateTraineeDto
     [EmailAddress]
     public string? Email { get; set; }
 
-    [Required]
-    [EnumDataType(typeof(TechStackEnumValues),ErrorMessage = "Invalid TechStack Specified")]
     public string? TechStack { get; set; }
 
     [EnumDataType(typeof(TraineeStatusEnumValues),ErrorMessage = "Invalid Status Value Specified")]
