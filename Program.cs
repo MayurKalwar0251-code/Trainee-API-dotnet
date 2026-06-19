@@ -28,6 +28,8 @@ builder.Services.AddAutoMapper(cfg =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddHttpContextAccessor();
+
 // 2. Register your custom exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
@@ -45,6 +47,7 @@ builder.Services.AddScoped<ILearningTaskService,LearningTaskService>();
 builder.Services.AddScoped<ITaskAssignmentService,TaskAssignmentService>();
 builder.Services.AddScoped<ISubmissionService,SubmissionService>();
 builder.Services.AddScoped<IReviewService,ReviewService>();
+builder.Services.AddScoped<ILocalFileStorage,LocalFileStorage>();
 
 // 1. Retrieve the connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

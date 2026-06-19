@@ -13,10 +13,12 @@ public class SubmissionController : ControllerBase
 {
     private readonly ILogger<SubmissionController> _logger;
     private readonly ISubmissionService _submissionService;
-    public SubmissionController(ILogger<SubmissionController> logger, ISubmissionService submissionService)
+    private readonly ILocalFileStorage _localFileStorage;
+    public SubmissionController(ILogger<SubmissionController> logger, ISubmissionService submissionService, ILocalFileStorage localFileStorage)
     {
         _logger = logger;
         _submissionService = submissionService;
+        _localFileStorage = localFileStorage;
     }
 
     [Authorize]
@@ -55,5 +57,30 @@ public class SubmissionController : ControllerBase
         }
         _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
         return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("{id}/files")]
+    public async Task<IActionResult> PostSubmissionFile(int id, SubmitSubmissionFileDto submit)
+    {
+        Console.WriteLine("Post api controller");
+        var result = await _submissionService.SubmitSubmissionFile(id,submit);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpGet("{id}/download")]
+    public IActionResult GetSubmissionFile(int id)
+    {
+        return Ok(new {message = "Get Download", id});
+
+    }
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public IActionResult DeleteSubmissionFile(int id)
+    {
+        return Ok(new {message = "Delete", id});
+
     }
 }
