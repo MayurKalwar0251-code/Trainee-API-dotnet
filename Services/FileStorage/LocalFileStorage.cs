@@ -34,7 +34,8 @@ public class LocalFileStorage : ILocalFileStorage
         foreach (var file in files)
         {
             if (file.Length > 0) {
-                var filePath = Path.Combine(_configuration["StoredFilesPath"]!, Path.GetRandomFileName() + Path.GetExtension(file.FileName));
+                var randomName =  Path.GetRandomFileName();
+                var filePath = Path.Combine(_configuration["StoredFilesPath"]!, randomName + Path.GetExtension(file.FileName));
                 
                 Console.WriteLine("PathNameeee" + filePath);
 
@@ -53,7 +54,7 @@ public class LocalFileStorage : ILocalFileStorage
                 FileUploadResponseDto fileUploadDto = new FileUploadResponseDto
                 {
                     OriginalFileName = file.FileName,
-                    GeneratedStorageName = filePath,
+                    GeneratedStorageName = randomName,
                     ContentType = file.ContentType,
                     Checksum = checksum,
                     Size = file.Length,

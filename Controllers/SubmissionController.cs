@@ -64,6 +64,14 @@ public class SubmissionController : ControllerBase
     public async Task<IActionResult> PostSubmissionFile(int id, SubmitSubmissionFileDto submit)
     {
         Console.WriteLine("Post api controller");
+        foreach (var file in submit.Files)
+        {
+            var validateFile = ValidateFile.FileValidator(file);
+            if (!validateFile.isValid)
+            {
+                return Problem(statusCode : 413, detail : validateFile.ErrorMessage);
+            }
+        }
         var result = await _submissionService.SubmitSubmissionFile(id,submit);
         return Ok(result);
     }
