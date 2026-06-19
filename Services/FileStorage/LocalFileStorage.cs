@@ -9,19 +9,28 @@ public class LocalFileStorage : ILocalFileStorage
     {
         _configuration = configuration;
     }
-    public object DeleteAsync()
+    public ServiceResult<bool> DeleteAsync(string path)
     {
-        throw new NotImplementedException();
+        File.Delete(path);
+        return ServiceResult<bool>.Ok(true);
     }
 
-    public object ExistsAsync()
+    public ServiceResult<bool> ExistsAsync(string path)
     {
-        throw new NotImplementedException();
+        if (!File.Exists(path))
+        {
+            return ServiceResult<bool>.Fail("File Not Found");
+        }else
+        {
+            return ServiceResult<bool>.Ok(true);
+        }
     }
 
-    public object OpenReadAsync()
+    public async Task<ServiceResult<byte[]>> OpenReadAsync(string filePath)
     {
-        throw new NotImplementedException();
+        byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
+
+        return ServiceResult<byte[]>.Ok(fileBytes);
     }
 
     public async Task<ServiceResult<IEnumerable<FileUploadResponseDto>>> SaveAsync(IFormFileCollection files)
@@ -34,8 +43,8 @@ public class LocalFileStorage : ILocalFileStorage
         foreach (var file in files)
         {
             if (file.Length > 0) {
-                var randomName =  Path.GetRandomFileName();
-                var filePath = Path.Combine(_configuration["StoredFilesPath"]!, randomName + Path.GetExtension(file.FileName));
+                var generatedStorageName =  Path.GetRandomFileName() + Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(_configuration["StoredFilesPath"]!, generatedStorageName);
                 
                 Console.WriteLine("PathNameeee" + filePath);
 
@@ -54,7 +63,7 @@ public class LocalFileStorage : ILocalFileStorage
                 FileUploadResponseDto fileUploadDto = new FileUploadResponseDto
                 {
                     OriginalFileName = file.FileName,
-                    GeneratedStorageName = randomName,
+                    GeneratedStorageName = generatedStorageName,
                     ContentType = file.ContentType,
                     Checksum = checksum,
                     Size = file.Length,

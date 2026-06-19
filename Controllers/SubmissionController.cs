@@ -78,16 +78,28 @@ public class SubmissionController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}/download")]
-    public IActionResult GetSubmissionFile(int id)
+    public async Task<IActionResult> GetSubmissionFile(int id)
     {
-        return Ok(new {message = "Get Download", id});
-
+        Console.WriteLine("FETCHING " + id);
+        var getFileResponseDto = await _submissionService.DownloadFile(id);
+        if (!getFileResponseDto.Success)
+        {
+            return NotFound(getFileResponseDto);
+        }
+        return File(fileContents: getFileResponseDto.Data!.FileByte,contentType: getFileResponseDto.Data!.ContentType, fileDownloadName: getFileResponseDto.Data!.fileDownloadName);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
-    public IActionResult DeleteSubmissionFile(int id)
+    public async Task<IActionResult> DeleteSubmissionFile(int id)
     {
+        Console.WriteLine("Deleting" + id);
+        var deleteFile = await _submissionService.DeleteFile(id);
+        if (!deleteFile.Success)
+        {
+            return NotFound(deleteFile);
+        }
+
         return Ok(new {message = "Delete", id});
 
     }

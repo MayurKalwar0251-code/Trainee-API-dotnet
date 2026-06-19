@@ -10,4 +10,7 @@ public interface ISubmissionService
     Task<ServiceResult<SubmissionDto>> Create(CreateSubmissionDto dto);
 
     Task<ServiceResult<IEnumerable<SubmissionFile>>> SubmitSubmissionFile(int id,SubmitSubmissionFileDto submit);
+
+    Task<ServiceResult<GetFileResponseDto>> DownloadFile(int id);
+    Task<ServiceResult<string>> DeleteFile(int id);
 }

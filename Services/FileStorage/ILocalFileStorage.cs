@@ -2,9 +2,9 @@ public interface ILocalFileStorage
 {
     Task<ServiceResult<IEnumerable<FileUploadResponseDto>>> SaveAsync(IFormFileCollection files);
 
-    object OpenReadAsync();
+    Task<ServiceResult<byte[]>> OpenReadAsync(string filePath);
 
-    object ExistsAsync();
+    ServiceResult<bool> ExistsAsync(string path);
 
-    object DeleteAsync();
+    ServiceResult<bool> DeleteAsync(string path);
 }
