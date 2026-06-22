@@ -39,15 +39,14 @@ builder.Services.AddProblemDetails();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<ITraineeService,TraineeService>();
-builder.Services.AddScoped<IJWTService,JWTService>();
-builder.Services.AddScoped<IUserService,UserService>();
-builder.Services.AddScoped<IMentorService,MentorService>();
-builder.Services.AddScoped<ILearningTaskService,LearningTaskService>();
-builder.Services.AddScoped<ITaskAssignmentService,TaskAssignmentService>();
-builder.Services.AddScoped<ISubmissionService,SubmissionService>();
-builder.Services.AddScoped<IReviewService,ReviewService>();
-builder.Services.AddScoped<ILocalFileStorage,LocalFileStorage>();
+// call extension ServiceExtension for injection service classes
+builder.Services.AddServices();
+
+builder.Services.AddStackExchangeRedisCache( options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+    options.InstanceName = "TraineeManagementApi";
+}); 
 
 // 1. Retrieve the connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -57,17 +56,8 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 
 builder.Services.AddDbContext<TraineeContext>(opt => opt.UseMySql(connectionString,serverVersion));
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
-    options.TokenValidationParameters = new TokenValidationParameters {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
+// call extension JWTExtension for injection JWT configuration
+builder.Services.AddJwtService(builder.Configuration);
 
 builder.Services.AddAuthorization();
 
