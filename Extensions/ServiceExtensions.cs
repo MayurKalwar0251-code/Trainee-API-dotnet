@@ -2,6 +2,7 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddServices (this IServiceCollection services)
     {
+        services.AddSingleton<ICacheService,CacheService>();
         services.AddScoped<ITraineeService,TraineeService>();
         services.AddScoped<IJWTService,JWTService>();
         services.AddScoped<IUserService,UserService>();

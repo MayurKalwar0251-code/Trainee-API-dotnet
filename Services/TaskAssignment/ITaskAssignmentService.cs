@@ -5,7 +5,7 @@ public interface ITaskAssignmentService
 {
     Task<ServiceResult<List<TaskAssignmentDto>>> GetAll();
 
-    ServiceResult<TaskAssignmentDto> GetById(int id);
+    Task<ServiceResult<TaskAssignmentDto>> GetById(int id);
 
     Task<ServiceResult<TaskAssignmentDto>> Create(CreateTaskAssignmentDto dto);
 

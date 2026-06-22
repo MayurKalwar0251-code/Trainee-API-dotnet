@@ -4,7 +4,7 @@ public interface ITraineeService
 {
     Task<ServiceResult<List<TraineeDto>>> GetAll();
 
-    ServiceResult<TraineeDto> GetById(int id);
+    Task<ServiceResult<TraineeDto>> GetById(int id);
 
     ServiceResult<TraineeDto> Create(CreateTraineeDto dto);
 

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 
@@ -9,11 +10,13 @@ public class TaskAssignmentService : ITaskAssignmentService
 {
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
+    private readonly ICacheService _cacheService;
 
-    public TaskAssignmentService(TraineeContext traineeContext, IMapper mapper)
+    public TaskAssignmentService(TraineeContext traineeContext, IMapper mapper, ICacheService cacheService)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
+        _cacheService = cacheService;
     }
 
     async Task<ServiceResult<TaskAssignmentDto>> ITaskAssignmentService.Create(CreateTaskAssignmentDto body)
@@ -64,8 +67,20 @@ public class TaskAssignmentService : ITaskAssignmentService
         return ServiceResult<List<TaskAssignmentDto>>.Ok(taskAssignmentDtos);
     }
 
-    ServiceResult<TaskAssignmentDto> ITaskAssignmentService.GetById(int id)
+    async Task<ServiceResult<TaskAssignmentDto>> ITaskAssignmentService.GetById(int id)
     {
+        string key = $"taskassignment:${id}";
+        
+        var data = await _cacheService.GetAsync<TaskAssignmentDto>(key);
+
+        if (data != null)
+        {
+            Console.WriteLine("Fetched from Cache : " + key);
+            return ServiceResult<TaskAssignmentDto>.Ok(data);
+        }
+
+        Console.WriteLine("Fetching from db : " + key);
+
         var taskAssignmentById = _traineeContext.TaskAssignments.FirstOrDefault(t => t.Id == id);
 
         if (taskAssignmentById == null)
@@ -74,6 +89,11 @@ public class TaskAssignmentService : ITaskAssignmentService
         }
 
         TaskAssignmentDto taskAssignmentDto = _mapper.Map<TaskAssignmentDto>(taskAssignmentById);
+
+        var cacheOptions = new DistributedCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+
+        await _cacheService.SetAsync(key,taskAssignmentDto,cacheOptions);
 
         return ServiceResult<TaskAssignmentDto>.Ok(taskAssignmentDto);
     }
@@ -107,6 +127,10 @@ public class TaskAssignmentService : ITaskAssignmentService
         await _traineeContext.SaveChangesAsync();
 
         var response = _mapper.Map<TaskAssignmentDto>(taskAssignment);
+
+        // invalidate cache data
+        string key = $"taskassignment:${id}";
+        await _cacheService.RemoveAsync(key);
 
         return ServiceResult<TaskAssignmentDto>.Ok(response);
     }

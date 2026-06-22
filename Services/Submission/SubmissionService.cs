@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 using System.Security.Claims;
+using Microsoft.Extensions.Caching.Distributed;
 
 public class SubmissionService : ISubmissionService
 {
@@ -14,14 +15,16 @@ public class SubmissionService : ISubmissionService
     private readonly ILocalFileStorage _localFileStorage;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
+    private readonly ICacheService _cacheService;
     
-    public SubmissionService(TraineeContext traineeContext, IMapper mapper, ILocalFileStorage localFileStorage, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+    public SubmissionService(TraineeContext traineeContext, IMapper mapper, ILocalFileStorage localFileStorage, IHttpContextAccessor httpContextAccessor, IConfiguration configuration,ICacheService cacheService)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
         _localFileStorage = localFileStorage;
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
+        _cacheService = cacheService;
     }
 
     public async Task<ServiceResult<SubmissionDto>> Create(CreateSubmissionDto request)
@@ -63,8 +66,20 @@ public class SubmissionService : ISubmissionService
 
     }
 
-    public ServiceResult<SubmissionDto> GetById(int id)
+    public async Task<ServiceResult<SubmissionDto>> GetById(int id)
     {
+        string key = $"submission:{id}";
+
+        var data = await _cacheService.GetAsync<SubmissionDto>(key);
+
+        if (data != null)
+        {
+            Console.WriteLine("Fetched from Cache : " + key);
+            return ServiceResult<SubmissionDto>.Ok(data);
+        }
+
+        Console.WriteLine("Fetching from db : " + key);
+
         var submissionById = _traineeContext.Submissions.FirstOrDefault(t => t.Id == id);
 
         if (submissionById == null)
@@ -73,6 +88,10 @@ public class SubmissionService : ISubmissionService
         }
 
         SubmissionDto submissionDtos = _mapper.Map<SubmissionDto>(submissionById);
+
+        var cacheOptions = new DistributedCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+        await _cacheService.SetAsync(key,submissionDtos,cacheOptions);
 
         return ServiceResult<SubmissionDto>.Ok(submissionDtos);
 

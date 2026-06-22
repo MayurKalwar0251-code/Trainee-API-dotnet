@@ -5,7 +5,7 @@ public interface ISubmissionService
 {
     Task<ServiceResult<List<SubmissionDto>>> GetAll();
 
-    ServiceResult<SubmissionDto> GetById(int id);
+    Task<ServiceResult<SubmissionDto>> GetById(int id);
 
     Task<ServiceResult<SubmissionDto>> Create(CreateSubmissionDto dto);
 

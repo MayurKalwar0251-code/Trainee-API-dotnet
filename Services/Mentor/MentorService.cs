@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 
@@ -7,11 +9,13 @@ public class MentorService : IMentorService
 {
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
+    private readonly ICacheService _cacheService;
 
-    public MentorService(TraineeContext traineeContext, IMapper mapper)
+    public MentorService(TraineeContext traineeContext, IMapper mapper, ICacheService cacheService)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
+        _cacheService = cacheService;
     }
 
     public ServiceResult<MentorDto> Create(CreateMentorDto mentor)
@@ -45,6 +49,10 @@ public class MentorService : IMentorService
 
         await _traineeContext.SaveChangesAsync();
 
+        // invalidate cache data
+        string key = $"mentor:{id}";
+        await _cacheService.RemoveAsync(key);
+
         return ServiceResult<bool>.Ok(true);
     }
 
@@ -59,8 +67,18 @@ public class MentorService : IMentorService
         return ServiceResult<List<MentorDto>>.Ok(mentorDtos);
     }
 
-    public ServiceResult<MentorDto> GetById(int id)
+    public async Task<ServiceResult<MentorDto>> GetById(int id)
     {
+        string key = $"mentor:{id}";
+        var data = await _cacheService.GetAsync<MentorDto>(key);
+
+        if (data != null)
+        {
+            Console.WriteLine("Fetched from Cache : " + key);
+            return ServiceResult<MentorDto>.Ok(data);   
+        }
+
+        Console.WriteLine("Fetching from db : " + key);
         var mentorById = _traineeContext.Mentors.FirstOrDefault(t => t.Id == id);
 
         if (mentorById == null)
@@ -69,6 +87,11 @@ public class MentorService : IMentorService
         }
 
         MentorDto mentor = _mapper.Map<MentorDto>(mentorById);
+
+        var cacheOptions = new DistributedCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+
+        await _cacheService.SetAsync(key,mentor,cacheOptions);
 
         return ServiceResult<MentorDto>.Ok(mentor);
     }
@@ -89,6 +112,10 @@ public class MentorService : IMentorService
         await _traineeContext.SaveChangesAsync();
 
         var response = _mapper.Map<MentorDto>(mentor);
+
+        // invalidate cache data
+        string key = $"mentor:{id}";
+        await _cacheService.RemoveAsync(key);
 
         return ServiceResult<MentorDto>.Ok(response);
     }

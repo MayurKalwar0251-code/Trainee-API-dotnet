@@ -5,7 +5,7 @@ public interface IMentorService
 {
     Task<ServiceResult<List<MentorDto>>> GetAll();
 
-    ServiceResult<MentorDto> GetById(int id);
+    Task<ServiceResult<MentorDto>> GetById(int id);
 
     ServiceResult<MentorDto> Create(CreateMentorDto dto);
 

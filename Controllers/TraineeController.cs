@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrainineeAPI.DTOs;
@@ -38,9 +39,9 @@ public class TraineeController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public ActionResult<TraineeDto> GetTraineeById(int id)
+    public async Task<ActionResult<TraineeDto>> GetTraineeById(int id)
     {
-        var traineeById = _traineeService.GetById(id);
+        var traineeById = await _traineeService.GetById(id);
 
         if (!traineeById.Success)
         {

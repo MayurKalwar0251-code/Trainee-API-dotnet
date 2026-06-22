@@ -31,9 +31,9 @@ public class SubmissionController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public ActionResult<SubmissionDto> GetSubmissionById(int id)
+    public async Task<ActionResult<SubmissionDto>> GetSubmissionById(int id)
     {
-        ServiceResult<SubmissionDto> submissionById = _submissionService.GetById(id);
+        ServiceResult<SubmissionDto> submissionById = await _submissionService.GetById(id);
 
         if (submissionById.Data == null)
         {

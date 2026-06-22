@@ -42,11 +42,7 @@ builder.Services.AddOpenApi();
 // call extension ServiceExtension for injection service classes
 builder.Services.AddServices();
 
-builder.Services.AddStackExchangeRedisCache( options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-    options.InstanceName = "TraineeManagementApi";
-}); 
+builder.Services.AddRedisService(builder.Configuration); 
 
 // 1. Retrieve the connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

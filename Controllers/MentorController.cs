@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrainineeAPI.DTOs;
@@ -28,9 +29,9 @@ public class MentorController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public ActionResult<MentorDto> GetMentorById(int id)
+    public async Task<ActionResult<MentorDto>> GetMentorById(int id)
     {
-        var mentorById = _mentorService.GetById(id);
+        var mentorById = await _mentorService.GetById(id);
 
         if (mentorById == null)
         {

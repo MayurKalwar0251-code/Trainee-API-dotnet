@@ -29,9 +29,9 @@ public class TaskAssignmentController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public ActionResult<TaskAssignmentDto> GetTaskAssignmentById(int id)
+    public async Task<ActionResult<TaskAssignmentDto>> GetTaskAssignmentById(int id)
     {
-        ServiceResult<TaskAssignmentDto> taskAssignmentById = _taskAssignmentService.GetById(id);
+        ServiceResult<TaskAssignmentDto> taskAssignmentById = await _taskAssignmentService.GetById(id);
 
         if (taskAssignmentById.Data == null)
         {

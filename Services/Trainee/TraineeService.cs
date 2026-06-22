@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using TrainineeAPI.DTOs;
 using TrainineeAPI.Models;
 
@@ -7,11 +9,13 @@ public class TraineeService : ITraineeService
 {
     private readonly TraineeContext _traineeContext;
     private readonly IMapper _mapper;
+    private readonly ICacheService _cacheService;
 
-    public TraineeService(TraineeContext traineeContext, IMapper mapper)
+    public TraineeService(TraineeContext traineeContext, IMapper mapper, ICacheService cacheService)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
+        _cacheService = cacheService;
     }
     public async Task<ServiceResult<List<TraineeDto>>> GetAll()
     {
@@ -24,8 +28,19 @@ public class TraineeService : ITraineeService
         return ServiceResult<List<TraineeDto>>.Ok(traineeDtos);
     }
 
-    public ServiceResult<TraineeDto> GetById(int id)
+    public async Task<ServiceResult<TraineeDto>> GetById(int id)
     {
+        string key = $"trainee:{id}";
+        Console.WriteLine("KEY : " + key);
+
+        var data = await _cacheService.GetAsync<TraineeDto>(key);
+
+        if (data != null)
+        {
+            Console.WriteLine("Fetched from Cachec : " + key);
+            return ServiceResult<TraineeDto>.Ok(data);
+        }
+        Console.WriteLine("Fetching from db : " + key);
         var traineeById = _traineeContext.Trainees.FirstOrDefault(t => t.Id == id);
 
         if (traineeById == null)
@@ -34,6 +49,11 @@ public class TraineeService : ITraineeService
         }
 
         TraineeDto traineeDto = _mapper.Map<TraineeDto>(traineeById);
+
+        var cacheOptions = new DistributedCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
+
+        await _cacheService.SetAsync(key,traineeDto,cacheOptions);
 
         return ServiceResult<TraineeDto>.Ok(traineeDto);
     }
@@ -69,6 +89,11 @@ public class TraineeService : ITraineeService
 
         await _traineeContext.SaveChangesAsync();
 
+        string key = $"trainee:{id}";
+
+        Console.WriteLine("Deleted from Cachec : " + key);
+        await _cacheService.RemoveAsync(key);
+
         return ServiceResult<bool>.Ok(true);
     }
 
@@ -88,6 +113,9 @@ public class TraineeService : ITraineeService
         await _traineeContext.SaveChangesAsync();
 
         var response = _mapper.Map<TraineeDto>(trainee);
+
+        string key = $"trainee:{id}";
+        await _cacheService.RemoveAsync(key);
 
         return ServiceResult<TraineeDto>.Ok(response);
     }
