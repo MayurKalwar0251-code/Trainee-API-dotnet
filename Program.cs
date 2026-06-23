@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TrainineeAPI.Models;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,15 @@ builder.Services.AddProblemDetails();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+var rabbitMQSection = builder.Configuration.GetSection("RabbitMQ");
+builder.Services.AddSingleton(sp => new ConnectionFactory()
+{
+    HostName = rabbitMQSection["HostName"] ?? "localhost",
+    UserName = rabbitMQSection["UserName"] ?? "guest",
+    Password = rabbitMQSection["Password"] ?? "guest",
+    VirtualHost = rabbitMQSection["VirtualHost"] ?? "/",
+});
 
 // call extension ServiceExtension for injection service classes
 builder.Services.AddServices();

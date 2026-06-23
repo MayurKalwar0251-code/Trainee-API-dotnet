@@ -16,8 +16,9 @@ public class SubmissionService : ISubmissionService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
     private readonly ICacheService _cacheService;
+    private readonly IRabbitMQPublisher _rabbitMQPublisher;
     
-    public SubmissionService(TraineeContext traineeContext, IMapper mapper, ILocalFileStorage localFileStorage, IHttpContextAccessor httpContextAccessor, IConfiguration configuration,ICacheService cacheService)
+    public SubmissionService(TraineeContext traineeContext, IMapper mapper, ILocalFileStorage localFileStorage, IHttpContextAccessor httpContextAccessor, IConfiguration configuration,ICacheService cacheService,IRabbitMQPublisher rabbitMQPublisher)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
@@ -25,6 +26,7 @@ public class SubmissionService : ISubmissionService
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
         _cacheService = cacheService;
+        _rabbitMQPublisher = rabbitMQPublisher;
     }
 
     public async Task<ServiceResult<SubmissionDto>> Create(CreateSubmissionDto request)
@@ -144,6 +146,17 @@ public class SubmissionService : ISubmissionService
 
             _traineeContext.SubmissionFiles.Add(submissionFile);
             await _traineeContext.SaveChangesAsync();
+
+            // publish message
+            SubmissionProcessingRequestModel submissionProcessingRequestModel = new SubmissionProcessingRequestModel
+            {
+                SubmissionId = submission.Id,
+                SubmissionFileId = submissionFile.Id,
+            };
+
+            Console.WriteLine("Publishing message in rabbitMq");
+            await _rabbitMQPublisher.PublishMessageAsync(submissionProcessingRequestModel, RabbitMQQueues.SubmissionProcessingQueue);
+            Console.WriteLine("Published message in rabbitMq");
         }
 
 

@@ -8,5 +8,25 @@ services:
     volumes:
       - redis_data:/data
 
+  rabbitmq:
+    image: docker-registry-002.zeuslearning.com/zeuslearning/rabbitmq:3.13.7-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq-lib:/var/lib/rabbitmq/
+      - rabbitmq-log:/var/log/rabbitmq/
+
+
 volumes:
   redis_data:
+    driver: local
+  rabbitmq-lib:
+    driver: local
+  rabbitmq-log:
+    driver: local
