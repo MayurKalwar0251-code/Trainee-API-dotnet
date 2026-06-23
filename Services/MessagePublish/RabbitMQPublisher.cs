@@ -15,13 +15,20 @@ public class RabbitMQPublisher : IRabbitMQPublisher
 
     public async Task PublishMessageAsync<T>(T message, string queueName)
     {
-        using var connection = await _connectionFactory.CreateConnectionAsync();
-        using var channel = await connection.CreateChannelAsync();
-        await channel.QueueDeclareAsync(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        try
+        {
+            using var connection = await _connectionFactory.CreateConnectionAsync();
+            using var channel = await connection.CreateChannelAsync();
+            await channel.QueueDeclareAsync(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-        var messageJson = JsonSerializer.Serialize(message);
-        var body = Encoding.UTF8.GetBytes(messageJson);
+            var messageJson = JsonSerializer.Serialize(message);
+            var body = Encoding.UTF8.GetBytes(messageJson);
 
-        await channel.BasicPublishAsync(exchange: "", routingKey: queueName, body: body);
+            await channel.BasicPublishAsync(exchange: "", routingKey: queueName, body: body);
+        }
+        catch (System.Exception)
+        {
+            Console.WriteLine("Some error happened in background while connecting with rabbitmq");   
+        }
     }
 }
