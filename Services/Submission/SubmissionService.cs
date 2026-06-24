@@ -145,14 +145,32 @@ public class SubmissionService : ISubmissionService
             submissionFiles.Add(submissionFile);
 
             _traineeContext.SubmissionFiles.Add(submissionFile);
-            await _traineeContext.SaveChangesAsync();
-
+            
             // publish message
             SubmissionProcessingRequestModel submissionProcessingRequestModel = new SubmissionProcessingRequestModel
             {
+                CorrelationId = Guid.NewGuid().ToString(),
+                MessageId = Guid.NewGuid().ToString(),
+                RequestedAt = DateTime.UtcNow,
                 SubmissionId = submission.Id,
                 SubmissionFileId = submissionFile.Id,
             };
+
+            // create processing job and add in database
+            ProcessingJob processingJob = new ProcessingJob
+            {
+                CorrelationId = submissionProcessingRequestModel.CorrelationId,  
+                MessageId = submissionProcessingRequestModel.MessageId,  
+                Status = "Queued",
+                SubmissionFileId = submissionFile.Id,
+                Attempts = 0,
+                Id = _traineeContext.ProcessingJobs.Count() == 0 ? 1 : _traineeContext.ProcessingJobs.Max(i => i.Id) + 1,
+                StartedTime = DateTime.UtcNow,
+                CompletedTime = DateTime.UtcNow,
+            };
+
+            _traineeContext.ProcessingJobs.Add(processingJob);
+            await _traineeContext.SaveChangesAsync();
 
             Console.WriteLine("Publishing message in rabbitMq");
             await _rabbitMQPublisher.PublishMessageAsync(submissionProcessingRequestModel, RabbitMQQueues.SubmissionProcessingQueue);

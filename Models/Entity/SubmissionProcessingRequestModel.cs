@@ -1,12 +1,12 @@
 namespace TrainineeAPI.Models;
 public class SubmissionProcessingRequestModel
 {
-    public string MessageId { get; set; } = Guid.NewGuid().ToString();
-    public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
+    public required string MessageId { get; set; }
+    public required string CorrelationId { get; set; }
     public required long SubmissionId { get; set; }
     public Submission? Submission { get; set; }
     public required long SubmissionFileId { get; set; }
     public SubmissionFile? SubmissionFile { get; set; }
-    public DateOnly RequestedAt {get; set;} = DateOnly.FromDateTime(DateTime.Now);
+    public DateTime RequestedAt {get; set;}
     public string? ContractVersion {get; set;}
 }

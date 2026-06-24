@@ -23,8 +23,12 @@ public class RabbitMQPublisher : IRabbitMQPublisher
 
             var messageJson = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(messageJson);
+            var properties = new BasicProperties()
+            {
+                Persistent = true
+            };
 
-            await channel.BasicPublishAsync(exchange: "", routingKey: queueName, body: body);
+            await channel.BasicPublishAsync(exchange: "", routingKey: queueName, body: body, basicProperties: properties, mandatory: false);
         }
         catch (System.Exception)
         {
