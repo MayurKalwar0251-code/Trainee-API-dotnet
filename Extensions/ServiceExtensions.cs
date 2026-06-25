@@ -1,18 +1,19 @@
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddServices (this IServiceCollection services)
+    public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddSingleton<IRabbitMQPublisher,RabbitMQPublisher>();
-        services.AddSingleton<ICacheService,CacheService>();
-        services.AddScoped<ITraineeService,TraineeService>();
-        services.AddScoped<IJWTService,JWTService>();
-        services.AddScoped<IUserService,UserService>();
-        services.AddScoped<IMentorService,MentorService>();
-        services.AddScoped<ILearningTaskService,LearningTaskService>();
-        services.AddScoped<ITaskAssignmentService,TaskAssignmentService>();
-        services.AddScoped<ISubmissionService,SubmissionService>();
-        services.AddScoped<IReviewService,ReviewService>();
-        services.AddScoped<ILocalFileStorage,LocalFileStorage>();
+        services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+        services.AddSingleton<ICacheService, CacheService>();
+        services.AddScoped<ITraineeService, TraineeService>();
+        services.AddScoped<IJWTService, JWTService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IMentorService, MentorService>();
+        services.AddScoped<ILearningTaskService, LearningTaskService>();
+        services.AddScoped<ITaskAssignmentService, TaskAssignmentService>();
+        services.AddScoped<ISubmissionService, SubmissionService>();
+        services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<ILocalFileStorage, LocalFileStorage>();
+        services.AddScoped<IProcessJobService, ProcessJobService>();
         return services;
-    } 
+    }
 }
