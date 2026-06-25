@@ -19,7 +19,18 @@ public class RabbitMQPublisher : IRabbitMQPublisher
         {
             using var connection = await _connectionFactory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
-            await channel.QueueDeclareAsync(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+
+            await channel.QueueDeclareAsync(
+            queue: queueName,
+            durable: true, 
+            exclusive: false, 
+            autoDelete: false, 
+            arguments: new Dictionary<string, object?>
+            {
+                ["x-dead-letter-exchange"] = ConfigConstants.DlqQueueExchangeName,
+                ["x-dead-letter-routing-key"] = ConfigConstants.DlqQueueRoutingKey
+            }
+        );
 
             var messageJson = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(messageJson);

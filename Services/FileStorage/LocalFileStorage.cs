@@ -65,7 +65,7 @@ public class LocalFileStorage : ILocalFileStorage
                     OriginalFileName = file.FileName,
                     GeneratedStorageName = generatedStorageName,
                     ContentType = file.ContentType,
-                    Checksum = checksum,
+                    Checksum = "dummy checksum value",
                     Size = file.Length,
                 };
 
