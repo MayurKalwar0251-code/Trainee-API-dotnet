@@ -6,6 +6,7 @@ using TrainineeAPI.Models;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +63,20 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 
 builder.Services.AddDbContext<TraineeContext>(opt => opt.UseMySql(connectionString,serverVersion));
 
+builder.Services.AddHealthChecks().AddMySql(
+    builder.Configuration.GetConnectionString("DefaultConnection")!,
+    name: "MySQL",
+    tags: new[] {"ready"}
+).AddRedis(
+    builder.Configuration.GetConnectionString("RedisConnection")!,
+    name: "Redis",
+    tags: new[] {"ready"}
+).AddRabbitMQ(
+    async sp => await sp.GetRequiredService<ConnectionFactory>().CreateConnectionAsync(),
+    name: "RabbitMQ",
+    tags: new[] {"ready"}
+);
+
 // call extension JWTExtension for injection JWT configuration
 builder.Services.AddJwtService(builder.Configuration);
 
@@ -85,6 +100,10 @@ if (app.Environment.IsDevelopment())
         // options.WithTheme(ScalarTheme.Moon); 
     });
 }
+
+app.MapHealthChecks("/health/live",new HealthCheckOptions { Predicate = _ => false,ResponseWriter = HealthCheckReportExtension.WriteHealthCheckResponse});
+
+app.MapHealthChecks("/health/ready",new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready"),ResponseWriter = HealthCheckReportExtension.WriteHealthCheckResponse });
 
 app.UseCors();
 
