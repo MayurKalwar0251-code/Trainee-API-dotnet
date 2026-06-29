@@ -7,6 +7,7 @@ using Scalar.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using TraineeApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +102,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+Console.WriteLine(builder.Configuration["RabbitMQ:HostName"]);
+
 app.MapHealthChecks("/health/live",new HealthCheckOptions { Predicate = _ => false,ResponseWriter = HealthCheckReportExtension.WriteHealthCheckResponse});
 
 app.MapHealthChecks("/health/ready",new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready"),ResponseWriter = HealthCheckReportExtension.WriteHealthCheckResponse });
@@ -116,5 +119,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+await app.SeedDatabaseAsync();
 
 app.Run();

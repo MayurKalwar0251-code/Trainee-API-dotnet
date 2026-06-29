@@ -126,7 +126,8 @@ public class SubmissionService : ISubmissionService
         {
             var id = _traineeContext.SubmissionFiles.Count() == 0 ? 1 : _traineeContext.SubmissionFiles.Max(i => i.Id) + 1;
 
-            var userId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            var userId = 1;
+            // var userId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
 
             SubmissionFile submissionFile = new SubmissionFile
             {
