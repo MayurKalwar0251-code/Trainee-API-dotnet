@@ -102,8 +102,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-Console.WriteLine(builder.Configuration["RabbitMQ:HostName"]);
-
 app.MapHealthChecks("/health/live",new HealthCheckOptions { Predicate = _ => false,ResponseWriter = HealthCheckReportExtension.WriteHealthCheckResponse});
 
 app.MapHealthChecks("/health/ready",new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready"),ResponseWriter = HealthCheckReportExtension.WriteHealthCheckResponse });
