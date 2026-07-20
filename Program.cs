@@ -11,6 +11,8 @@ using TraineeApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+DotNetEnv.Env.Load();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -21,6 +23,14 @@ builder.Services.AddCors(options =>
                 .AllowAnyMethod();
         });
 });
+
+builder.Configuration["ConnectionStrings:DefaultConnection"] =
+    $"Server=localhost;Port=3306;Database={Environment.GetEnvironmentVariable("MYSQL_DATABASE")};User={Environment.GetEnvironmentVariable("MYSQL_ROOT_USER")};Password={Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD")};";
+ 
+builder.Configuration["RabbitMQ:HostName"] = "localhost";
+builder.Configuration["RabbitMQ:UserName"] = Environment.GetEnvironmentVariable("RABBITMQ_DEFAULT_USER");
+builder.Configuration["RabbitMQ:Password"] = Environment.GetEnvironmentVariable("RABBITMQ_DEFAULT_PASS");
+builder.Configuration["Jwt:Key"] = Environment.GetEnvironmentVariable("JWT_KEY");
 
 // Add services to the container.
 builder.Services.AddAutoMapper(cfg => 

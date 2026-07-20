@@ -6,8 +6,3 @@
 /publish
 
 .env
-
-# Ignore local appsettings modifications
-appsettings.json
-appsettings.Development.json
-appsettings.Production.json
