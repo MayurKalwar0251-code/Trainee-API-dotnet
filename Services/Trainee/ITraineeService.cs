@@ -13,6 +13,6 @@ public interface ITraineeService
     Task<ServiceResult<bool>> Delete(int id);
 
     Task<ServiceResult<List<TraineeDto>>> FilterBySearch(string search); 
-    Task<ServiceResult<List<TraineeDto>>> FilterByQuery(FilterTraineeDto filter); 
+    Task<ServiceResult<PagedResponse<TraineeDto>>> FilterByQuery(FilterTraineeDto filter); 
     
 }

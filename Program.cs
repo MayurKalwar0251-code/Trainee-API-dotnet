@@ -19,8 +19,10 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:3000",
-                                "http://localhost:5173")
-                .AllowAnyMethod();
+                               "http://localhost:5173",
+                               "http://localhost:4200") // Removed the trailing slash item
+                .AllowAnyMethod()
+                .AllowAnyHeader(); // 👈 Add this line
         });
 });
 

@@ -6,6 +6,9 @@ namespace TrainineeAPI.DTOs;
 public class TraineeDto
 {
     [Required]
+    public required long Id {get; set;}
+
+    [Required]
     [MinLength(1, ErrorMessage = "Name should be of minimum 1 length")]
     public string? FirstName { get; set; }
 

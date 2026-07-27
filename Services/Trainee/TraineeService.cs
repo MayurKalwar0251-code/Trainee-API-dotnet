@@ -132,7 +132,7 @@ public class TraineeService : ITraineeService
 
         return ServiceResult<List<TraineeDto>>.Ok(traineeDtos);
     }
-    public async Task<ServiceResult<List<TraineeDto>>> FilterByQuery(FilterTraineeDto filter)
+    public async Task<ServiceResult<PagedResponse<TraineeDto>>> FilterByQuery(FilterTraineeDto filter)
     {
         IQueryable<Trainee> filterResult = _traineeContext.Trainees;
 
@@ -166,6 +166,14 @@ public class TraineeService : ITraineeService
 
         List<TraineeDto> resultDTO = result.Select(item => _mapper.Map<TraineeDto>(item)).ToList();
 
-        return ServiceResult<List<TraineeDto>>.Ok(resultDTO);
+        PagedResponse<TraineeDto> pagedResponse = new PagedResponse<TraineeDto>
+        {
+            Items = resultDTO,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalDocs,
+        };
+
+        return ServiceResult<PagedResponse<TraineeDto>>.Ok(pagedResponse);
     }
 }
