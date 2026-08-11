@@ -21,6 +21,15 @@ public class SubmissionController : ControllerBase
         _localFileStorage = localFileStorage;
     }
 
+
+    [Authorize]
+    [HttpGet("task/{id}")]
+    public async Task<ActionResult<IEnumerable<SubmissionDto>>> GetSubmissionOfTask(int id)
+    {
+        var submissions = await _submissionService.GetSubmissionOfTask(id);
+        return Ok(submissions);
+    }
+
     [Authorize]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<SubmissionDto>>> GetAllSubmission()
@@ -69,10 +78,10 @@ public class SubmissionController : ControllerBase
             var validateFile = ValidateFile.FileValidator(file);
             if (!validateFile.isValid)
             {
-                return Problem(statusCode : 413, detail : validateFile.ErrorMessage);
+                return Problem(statusCode: 413, detail: validateFile.ErrorMessage);
             }
         }
-        var result = await _submissionService.SubmitSubmissionFile(id,submit);
+        var result = await _submissionService.SubmitSubmissionFile(id, submit);
         return Ok(result);
     }
 
@@ -86,7 +95,7 @@ public class SubmissionController : ControllerBase
         {
             return NotFound(getFileResponseDto);
         }
-        return File(fileContents: getFileResponseDto.Data!.FileByte,contentType: getFileResponseDto.Data!.ContentType, fileDownloadName: getFileResponseDto.Data!.fileDownloadName);
+        return File(fileContents: getFileResponseDto.Data!.FileByte, contentType: getFileResponseDto.Data!.ContentType, fileDownloadName: getFileResponseDto.Data!.fileDownloadName);
     }
 
     [Authorize]
@@ -94,13 +103,13 @@ public class SubmissionController : ControllerBase
     public async Task<IActionResult> DeleteSubmissionFile(int id)
     {
         Console.WriteLine("Deleting" + id);
-        var deleteFile = await _submissionService.DeleteFile(id);
+        var deleteFile = await _submissionService.DeleteSubmissionAndFiles(id);
         if (!deleteFile.Success)
         {
             return NotFound(deleteFile);
         }
 
-        return Ok(new {message = "Delete", id});
+        return Ok(new { message = "Delete", id });
 
     }
 }

@@ -53,12 +53,22 @@ public class LearningTaskService : ILearningTaskService
 
     public async Task<ServiceResult<List<LearningTaskDto>>> GetAll()
     {
-        var mentors = await _traineeContext.LearningTasks.ToListAsync();
+        var learningTasksWithCounts = await _traineeContext.LearningTasks.Select(lt => new
+        {
+            Task = lt,
+            AssignedCount = _traineeContext.TaskAssignments.Count(a => a.LearningTaskId == lt.Id)
+        })
+        .ToListAsync();
 
-        var learningTaskDtos = mentors
-            .Select(t => _mapper.Map<LearningTaskDto>(t))
+        var learningTaskDtos = learningTasksWithCounts
+            .Select(t =>
+            {
+                var dto = _mapper.Map<LearningTaskDto>(t.Task);
+                dto.noOfAssignedTrainee = t.AssignedCount;
+                return dto;
+            })
             .ToList();
-
+        
         return ServiceResult<List<LearningTaskDto>>.Ok(learningTaskDtos);
     }
 

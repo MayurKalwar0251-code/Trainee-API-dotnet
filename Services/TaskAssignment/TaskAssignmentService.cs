@@ -19,42 +19,51 @@ public class TaskAssignmentService : ITaskAssignmentService
         _cacheService = cacheService;
     }
 
-    async Task<ServiceResult<TaskAssignmentDto>> ITaskAssignmentService.Create(CreateTaskAssignmentDto body)
+    public async Task<ServiceResult<TaskAssignmentDto>> Create(CreateTaskAssignmentDto body)
     {
-        // validate traineeId,MentorId,LearningTaskId are in DB
-        Trainee trainee = _traineeContext.Trainees.FirstOrDefault(i => i.Id == body.TraineeId)!;
-        LearningTask learningTask = _traineeContext.LearningTasks.FirstOrDefault(i => i.Id == body.LearningTaskId)!;
-        Mentor mentor = _traineeContext.Mentors.FirstOrDefault(i => i.Id == body.MentorId)!;
-
-        Console.WriteLine(trainee == null);
-        Console.WriteLine(learningTask == null);
-        Console.WriteLine(mentor == null);
-        if (trainee == null || learningTask == null || mentor == null)
-        {
-            Console.WriteLine("Error in Validate ids");
-            return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
-        }
-
-        // compare due date and assignment date
+        // 1. Business Logic Validation (Fast fail without touching DB)
         if (body.DueDate < body.AssignedDate)
         {
-            Console.WriteLine("Error in Due Date <");
             return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DueDateLesserError);
         }
 
-        var id = _traineeContext.TaskAssignments.Count() == 0 ? 1 : _traineeContext.TaskAssignments.Max(t => t.Id) + 1;
+        // 2. Validate Foreign Keys & Check Duplicates sequentially
+        // Each line waits for the previous one to release the DbContext
+        var traineeExists = await _traineeContext.Trainees.AnyAsync(i => i.Id == body.TraineeId);
+        if (!traineeExists) return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
 
+        var taskExists = await _traineeContext.LearningTasks.AnyAsync(i => i.Id == body.LearningTaskId);
+        if (!taskExists) return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
+
+        var mentorExists = await _traineeContext.Mentors.AnyAsync(i => i.Id == body.MentorId);
+        if (!mentorExists) return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
+
+        var duplicateExists = await _traineeContext.TaskAssignments.AnyAsync(a =>
+            a.TraineeId == body.TraineeId &&
+            a.LearningTaskId == body.LearningTaskId &&
+            a.MentorId == body.MentorId);
+
+        if (duplicateExists)
+        {
+            return ServiceResult<TaskAssignmentDto>.Fail("This task assignment already exists.");
+        }
+
+        // 3. Map and prepare entity
+        var id = _traineeContext.TaskAssignments.Count() == 0 ? 1 : _traineeContext.TaskAssignments.Max(t => t.Id) + 1;
         TaskAssignment taskAssignment = _mapper.Map<TaskAssignment>(body);
         taskAssignment.Id = id;
-        taskAssignment.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
-        taskAssignment.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        taskAssignment.CreatedDate = today;
+        taskAssignment.UpdatedDate = today;
 
-        TaskAssignmentDto taskAssignmentDto = _mapper.Map<TaskAssignmentDto>(taskAssignment);
+        // 4. Save changes and return mapped DTO
         _traineeContext.TaskAssignments.Add(taskAssignment);
         await _traineeContext.SaveChangesAsync();
 
+        TaskAssignmentDto taskAssignmentDto = _mapper.Map<TaskAssignmentDto>(taskAssignment);
         return ServiceResult<TaskAssignmentDto>.Ok(taskAssignmentDto);
     }
+
 
     async Task<ServiceResult<List<TaskAssignmentDto>>> ITaskAssignmentService.GetAll()
     {
@@ -70,7 +79,7 @@ public class TaskAssignmentService : ITaskAssignmentService
     async Task<ServiceResult<TaskAssignmentDto>> ITaskAssignmentService.GetById(int id)
     {
         string key = $"taskassignment:${id}";
-        
+
         var data = await _cacheService.GetAsync<TaskAssignmentDto>(key);
 
         if (data != null)
@@ -93,7 +102,7 @@ public class TaskAssignmentService : ITaskAssignmentService
         var cacheOptions = new DistributedCacheEntryOptions()
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
 
-        await _cacheService.SetAsync(key,taskAssignmentDto,cacheOptions);
+        await _cacheService.SetAsync(key, taskAssignmentDto, cacheOptions);
 
         return ServiceResult<TaskAssignmentDto>.Ok(taskAssignmentDto);
     }
@@ -121,7 +130,7 @@ public class TaskAssignmentService : ITaskAssignmentService
             return ServiceResult<TaskAssignmentDto>.Fail(ErrorConstants.DocumentNotFound);
         }
 
-        _mapper.Map(updatedDetails,taskAssignment);
+        _mapper.Map(updatedDetails, taskAssignment);
         taskAssignment.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
 
         await _traineeContext.SaveChangesAsync();

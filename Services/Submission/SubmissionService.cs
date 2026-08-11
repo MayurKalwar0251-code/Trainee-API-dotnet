@@ -17,8 +17,8 @@ public class SubmissionService : ISubmissionService
     private readonly IConfiguration _configuration;
     private readonly ICacheService _cacheService;
     private readonly IRabbitMQPublisher _rabbitMQPublisher;
-    
-    public SubmissionService(TraineeContext traineeContext, IMapper mapper, ILocalFileStorage localFileStorage, IHttpContextAccessor httpContextAccessor, IConfiguration configuration,ICacheService cacheService,IRabbitMQPublisher rabbitMQPublisher)
+
+    public SubmissionService(TraineeContext traineeContext, IMapper mapper, ILocalFileStorage localFileStorage, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, ICacheService cacheService, IRabbitMQPublisher rabbitMQPublisher)
     {
         _traineeContext = traineeContext;
         _mapper = mapper;
@@ -54,6 +54,25 @@ public class SubmissionService : ISubmissionService
         SubmissionDto submissionDto = _mapper.Map<SubmissionDto>(submission);
 
         return ServiceResult<SubmissionDto>.Ok(submissionDto);
+    }
+
+    public async Task<ServiceResult<List<SubmissionDto>>> GetSubmissionOfTask(int id)
+    {
+        // find task assignment with id
+        var taskAssignment = _traineeContext.TaskAssignments.FirstOrDefault(t => t.Id == id);
+
+        if (taskAssignment == null)
+        {
+            return ServiceResult<List<SubmissionDto>>.Fail(ErrorConstants.DocumentNotFound);
+        }
+
+        var submissions = await _traineeContext.Submissions
+            .Where(s => s.TaskAssignmentId == id)
+            .ToListAsync();
+
+        var submissionDto = submissions.Select(s => _mapper.Map<SubmissionDto>(s)).ToList();
+
+        return ServiceResult<List<SubmissionDto>>.Ok(submissionDto);
     }
 
     public async Task<ServiceResult<List<SubmissionDto>>> GetAll()
@@ -93,16 +112,16 @@ public class SubmissionService : ISubmissionService
 
         var cacheOptions = new DistributedCacheEntryOptions()
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(20));
-        await _cacheService.SetAsync(key,submissionDtos,cacheOptions);
+        await _cacheService.SetAsync(key, submissionDtos, cacheOptions);
 
         return ServiceResult<SubmissionDto>.Ok(submissionDtos);
 
     }
 
-    public async Task<ServiceResult<IEnumerable<SubmissionFile>>> SubmitSubmissionFile(int submissionId,SubmitSubmissionFileDto submit)
+    public async Task<ServiceResult<IEnumerable<SubmissionFile>>> SubmitSubmissionFile(int submissionId, SubmitSubmissionFileDto submit)
     {
         Console.WriteLine("Submission submit service function");
-        Submission submission = _traineeContext.Submissions.FirstOrDefault(s=> s.Id == submissionId)!;
+        Submission submission = _traineeContext.Submissions.FirstOrDefault(s => s.Id == submissionId)!;
 
         if (submission == null)
         {
@@ -147,7 +166,7 @@ public class SubmissionService : ISubmissionService
             submissionFiles.Add(submissionFile);
 
             _traineeContext.SubmissionFiles.Add(submissionFile);
-            
+
             // publish message
             SubmissionProcessingRequestModel submissionProcessingRequestModel = new SubmissionProcessingRequestModel
             {
@@ -161,8 +180,8 @@ public class SubmissionService : ISubmissionService
             // create processing job and add in database
             ProcessingJob processingJob = new ProcessingJob
             {
-                CorrelationId = submissionProcessingRequestModel.CorrelationId,  
-                MessageId = submissionProcessingRequestModel.MessageId,  
+                CorrelationId = submissionProcessingRequestModel.CorrelationId,
+                MessageId = submissionProcessingRequestModel.MessageId,
                 Status = "Queued",
                 SubmissionFileId = submissionFile.Id,
                 Attempts = 0,
@@ -198,7 +217,7 @@ public class SubmissionService : ISubmissionService
         // check if file exists in storage
         string GeneratedStorageName = submissionFile.GeneratedStorageName;
         string basePath = _configuration["StoredFilesPath"]!;
-        string path = Path.Combine(basePath,GeneratedStorageName);
+        string path = Path.Combine(basePath, GeneratedStorageName);
 
         Console.WriteLine("File path " + path);
         if (File.Exists(path) == false)
@@ -223,7 +242,60 @@ public class SubmissionService : ISubmissionService
         return ServiceResult<GetFileResponseDto>.Ok(getFileResponseDto);
     }
 
-    public async Task<ServiceResult<string>> DeleteFile(int id)
+    public async Task<ServiceResult<string>> DeleteSubmissionAndFiles(int submissionId)
+    {
+        Console.WriteLine($"Starting deletion process for Submission ID: {submissionId}");
+
+        // 1. Find the main submission record first
+        var submission = await _traineeContext.Submissions
+            .FirstOrDefaultAsync(s => s.Id == submissionId);
+
+        if (submission == null)
+        {
+            return ServiceResult<string>.Fail("Submission record not found.");
+        }
+
+        // 2. Fetch any attached files linked to this Submission ID
+        List<SubmissionFile> submissionFiles = await _traineeContext.SubmissionFiles
+            .Where(s => s.SubmissionId == submissionId)
+            .ToListAsync();
+
+        // 3. Process file deletion ONLY if files actually exist in the DB
+        if (submissionFiles != null && submissionFiles.Any())
+        {
+            Console.WriteLine($"Found {submissionFiles.Count} file(s). Cleaning up local storage...");
+            string basePath = _configuration["StoredFilesPath"]!;
+
+            foreach (var file in submissionFiles)
+            {
+                string path = Path.Combine(basePath, file.GeneratedStorageName);
+
+                if (File.Exists(path))
+                {
+                    _localFileStorage.DeleteAsync(path);
+                    Console.WriteLine($"Deleted physical file: {file.GeneratedStorageName}");
+                }
+            }
+
+            // Remove file records from the DB tracking context
+            _traineeContext.SubmissionFiles.RemoveRange(submissionFiles);
+        }
+        else
+        {
+            Console.WriteLine("No attached files found. Skipping physical storage cleanup.");
+        }
+
+        // 4. Delete the main submission record
+        _traineeContext.Submissions.Remove(submission);
+
+        // 5. Commit all changes (files removal + submission removal) in one database transaction
+        await _traineeContext.SaveChangesAsync();
+
+        return ServiceResult<string>.Ok("Submission and all associated data deleted successfully.");
+    }
+
+
+    public async Task<ServiceResult<string>> DeleteFilesBySubmissionId(int id)
     {
         Console.WriteLine("Download File Service FUnction");
         // check submission file exists
@@ -239,7 +311,7 @@ public class SubmissionService : ISubmissionService
         // check if file exists in storage
         string GeneratedStorageName = submissionFile.GeneratedStorageName;
         string basePath = _configuration["StoredFilesPath"]!;
-        string path = Path.Combine(basePath,GeneratedStorageName);
+        string path = Path.Combine(basePath, GeneratedStorageName);
 
         Console.WriteLine("File path " + path);
         if (File.Exists(path) == false)
