@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -18,20 +19,55 @@ public class MentorService : IMentorService
         _cacheService = cacheService;
     }
 
-    public ServiceResult<MentorDto> Create(CreateMentorDto mentor)
+    public async Task<ServiceResult<MentorDto>> Create(CreateMentorDto mentor)
     {
+        // check email already exists
+        var existsUser = await _traineeContext.Users.FirstOrDefaultAsync(x => x.Email == mentor.Email);
+
+        if (existsUser != null)
+        {
+            return ServiceResult<MentorDto>.Fail("User Already Exists");
+        } 
+
+        var user = new User
+        {
+            Id = _traineeContext.Users.Count() == 0 ? 1 : _traineeContext.Users.Max(t => t.Id) + 1,
+            Username = mentor.FirstName!,
+            Email = mentor.Email!,
+            PasswordHash = PasswordUtility.HashUserPassword(mentor.Password),
+            Role = "Mentor",
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now)
+        };
+
+        Console.WriteLine(JsonSerializer.Serialize(user));
+
+        await _traineeContext.Users.AddAsync(user);
+
+        await _traineeContext.SaveChangesAsync(); 
+
         var id = _traineeContext.Mentors.Count() == 0 ? 1 : _traineeContext.Mentors.Max(t => t.Id) + 1;
 
-        Mentor newMentor = _mapper.Map<Mentor>(mentor);
-        newMentor.Id = id;
-        newMentor.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
-        newMentor.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
+        Mentor newMentor = new Mentor
+        {
+            Id = id,
+            UserId = user.Id,
+            FirstName = mentor.FirstName,
+            LastName = mentor.LastName,
+            Email = mentor.Email,
+            Expertise = mentor.Expertise,
+            Status = "Active",
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
+        };
 
-        MentorDto mentorDto = _mapper.Map<MentorDto>(newMentor);
+        Console.WriteLine(JsonSerializer.Serialize(newMentor));
 
         _traineeContext.Mentors.Add(newMentor);
 
-        _traineeContext.SaveChangesAsync();
+        await _traineeContext.SaveChangesAsync();
+
+        MentorDto mentorDto = _mapper.Map<MentorDto>(newMentor);
 
         return ServiceResult<MentorDto>.Ok(mentorDto);
     }

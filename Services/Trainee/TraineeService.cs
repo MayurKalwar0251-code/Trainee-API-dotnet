@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -58,20 +59,55 @@ public class TraineeService : ITraineeService
         return ServiceResult<TraineeDto>.Ok(traineeDto);
     }
 
-    public ServiceResult<TraineeDto> Create(CreateTraineeDto trainee)
+    public async Task<ServiceResult<TraineeDto>> Create(CreateTraineeDto trainee)
     {
+        // check email already exists
+        var existsUser = await _traineeContext.Users.FirstOrDefaultAsync(x => x.Email == trainee.Email);
+
+        if (existsUser != null)
+        {
+            return ServiceResult<TraineeDto>.Fail("User Already Exists");
+        } 
+
+        var user = new User
+        {
+            Id = _traineeContext.Users.Count() == 0 ? 1 : _traineeContext.Users.Max(t => t.Id) + 1,
+            Username = trainee.FirstName!,
+            Email = trainee.Email!,
+            PasswordHash = PasswordUtility.HashUserPassword(trainee.Password),
+            Role = "Trainee",
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now)
+        };
+
+        Console.WriteLine(JsonSerializer.Serialize(user));
+
+        await _traineeContext.Users.AddAsync(user);
+
+        await _traineeContext.SaveChangesAsync();
+
         var id = _traineeContext.Trainees.Count() == 0 ? 1 : _traineeContext.Trainees.Max(t => t.Id) + 1;
 
-        Trainee newTrainee = _mapper.Map<Trainee>(trainee);
-        newTrainee.Id = id;
-        newTrainee.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
-        newTrainee.UpdatedDate = DateOnly.FromDateTime(DateTime.Now);
+        var traineeCreated = new Trainee
+        {
+            Id = id,
+            UserId = user.Id,
+            FirstName = trainee.FirstName!,
+            LastName = trainee.LastName!,
+            Email = trainee.Email!,
+            TechStack = trainee.TechStack!,
+            Status = "Active",
+            CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+            UpdatedDate = DateOnly.FromDateTime(DateTime.Now),
+        };
 
-        TraineeDto traineeDto = _mapper.Map<TraineeDto>(newTrainee);
+        await _traineeContext.Trainees.AddAsync(traineeCreated);
 
-        _traineeContext.Trainees.Add(newTrainee);
+        Console.WriteLine(JsonSerializer.Serialize(traineeCreated));
 
-        _traineeContext.SaveChangesAsync();
+        await _traineeContext.SaveChangesAsync();
+
+        var traineeDto = _mapper.Map<TraineeDto>(traineeCreated);
 
         return ServiceResult<TraineeDto>.Ok(traineeDto);
     }

@@ -16,6 +16,8 @@ public class TraineeDto
     [MinLength(1, ErrorMessage = "Name should be of minimum 1 length")]    
     public string? LastName { get; set; }
 
+    public long UserId {get; set;}
+
     [Required]
     [EmailAddress]
     public string? Email { get; set; }

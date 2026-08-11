@@ -44,10 +44,10 @@ public class MentorController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public ActionResult<MentorDto> CreateMentor(CreateMentorDto mentor)
+    public async Task<ActionResult<MentorDto>> CreateMentor(CreateMentorDto mentor)
     {
         Console.WriteLine("Mentor Creation Started");
-        var result = _mentorService.Create(mentor);
+        var result = await _mentorService.Create(mentor);
         _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
         return Ok(result);
     }

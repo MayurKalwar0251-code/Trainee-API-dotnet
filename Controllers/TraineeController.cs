@@ -53,10 +53,10 @@ public class TraineeController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public ActionResult<TraineeDto> CreateTrainee(CreateTraineeDto trainee)
+    public async Task<ActionResult<TraineeDto>> CreateTrainee(CreateTraineeDto trainee)
     {
         Console.WriteLine("Trainee Creation Started");
-        var result = _traineeService.Create(trainee);
+        var result = await _traineeService.Create(trainee);
         _logger.LogInformation(MessagesConstants.CreatedSuccessfully);
         return Ok(result);
     }

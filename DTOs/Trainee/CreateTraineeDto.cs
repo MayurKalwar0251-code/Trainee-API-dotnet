@@ -16,6 +16,9 @@ public class CreateTraineeDto
     [EmailAddress]
     public string? Email { get; set; }
 
+    [Required]
+    public required string Password {get; set;}
+
     public string? TechStack { get; set; }
 
     [EnumDataType(typeof(TraineeStatusEnumValues),ErrorMessage = "Invalid Status Value Specified")]

@@ -6,7 +6,7 @@ public interface ITraineeService
 
     Task<ServiceResult<TraineeDto>> GetById(int id);
 
-    ServiceResult<TraineeDto> Create(CreateTraineeDto dto);
+    Task<ServiceResult<TraineeDto>> Create(CreateTraineeDto dto);
 
     Task<ServiceResult<TraineeDto>> Update(int id, UpdateTraineeDto dto);
 

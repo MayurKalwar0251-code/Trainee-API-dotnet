@@ -7,7 +7,7 @@ public interface IMentorService
 
     Task<ServiceResult<MentorDto>> GetById(int id);
 
-    ServiceResult<MentorDto> Create(CreateMentorDto dto);
+    Task<ServiceResult<MentorDto>> Create(CreateMentorDto dto);
 
     Task<ServiceResult<MentorDto>> Update(int id, UpdateMentorDto dto);
 
